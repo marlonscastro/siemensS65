@@ -1,0 +1,46 @@
+#include <16F876.h>
+#FUSES NOWDT, HS, NOPUT, NOBROWNOUT, NOLVP, NOCPD, NOWRT, NODEBUG, NOPROTECT
+#use delay(clock=12000000)
+
+
+#include "disp.c"
+
+#define      LED_STATUS         pin_a1
+
+int tempo;
+
+#int_TIMER0
+void  TIMER0_isr(void){
+   tempo++;
+   if(tempo == 46){   //  46 * 21,8ms =~ 1002,8ms ou 1,002 segundos 
+      tempo=0;
+      output_toggle(LED_STATUS);
+   }
+}
+void main(){
+   int i;
+   char txt[]={'M','a','r','l','o','n',0};
+   setup_adc_ports(NO_ANALOGS);
+   setup_adc(ADC_OFF);
+   setup_timer_0(RTCC_INTERNAL|RTCC_DIV_256|RTCC_8_bit);      //21.8 ms overflow
+   enable_interrupts(INT_TIMER0);
+   enable_interrupts(GLOBAL);
+   
+   /*lcd_init();
+   
+   backcolor=0xA000;
+   textcolor=0xFFFF;
+   fill_screen(backcolor);
+   
+   i=0;   
+   
+   while (txt[i]!=0){
+      // two possible text outputs, same lower left (0) upper left (90) corner pixel
+      //    put_char(10+i*CHAR_W,60,txt[i],1);  // 90 deg. rotated
+      put_char(45+i*CHAR_W,60,txt[i],0);   // 0 deg. rotated
+      i++;
+   }*/
+   while(true){     
+   }
+}
+

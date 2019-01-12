@@ -1,0 +1,4013 @@
+CCS PCM C Compiler, Version 4.114, 93483988               28-abr-14 11:40
+
+               Filename: D:\SkyDrive\Eletronica\PROJETOS PIC CCS\LCD SIEMENS S65 176X132\Funciona - Eu fiz S65 L2F50\simple.lst
+
+               ROM used: 6033 words (74%)
+                         Largest free fragment is 2048
+               RAM used: 46 (12%) at main() level
+                         101 (27%) worst case
+               Stack:    5 worst case (4 in main + 1 for interrupts)
+
+*
+0000:  MOVLW  16
+0001:  MOVWF  0A
+0002:  GOTO   674
+0003:  NOP
+0004:  MOVWF  7F
+0005:  SWAPF  03,W
+0006:  CLRF   03
+0007:  MOVWF  21
+0008:  MOVF   0A,W
+0009:  MOVWF  20
+000A:  CLRF   0A
+000B:  MOVF   04,W
+000C:  MOVWF  22
+000D:  MOVF   77,W
+000E:  MOVWF  23
+000F:  MOVF   78,W
+0010:  MOVWF  24
+0011:  MOVF   79,W
+0012:  MOVWF  25
+0013:  MOVF   7A,W
+0014:  MOVWF  26
+0015:  MOVF   7B,W
+0016:  MOVWF  27
+0017:  BCF    03.7
+0018:  BCF    03.5
+0019:  BTFSS  0B.5
+001A:  GOTO   01D
+001B:  BTFSC  0B.2
+001C:  GOTO   030
+001D:  MOVF   22,W
+001E:  MOVWF  04
+001F:  MOVF   23,W
+0020:  MOVWF  77
+0021:  MOVF   24,W
+0022:  MOVWF  78
+0023:  MOVF   25,W
+0024:  MOVWF  79
+0025:  MOVF   26,W
+0026:  MOVWF  7A
+0027:  MOVF   27,W
+0028:  MOVWF  7B
+0029:  MOVF   20,W
+002A:  MOVWF  0A
+002B:  SWAPF  21,W
+002C:  MOVWF  03
+002D:  SWAPF  7F,F
+002E:  SWAPF  7F,W
+002F:  RETFIE
+0030:  BCF    0A.3
+0031:  BCF    0A.4
+0032:  GOTO   6A3
+.................... #include <16F876.h> 
+.................... //////// Standard Header file for the PIC16F876 device //////////////// 
+.................... #device PIC16F876 
+.................... #list 
+....................  
+.................... #FUSES NOWDT, HS, NOPUT, NOBROWNOUT, NOLVP, NOCPD, NOWRT, NODEBUG, NOPROTECT 
+.................... #use delay(clock=16000000) 
+*
+06BD:  MOVLW  48
+06BE:  MOVWF  04
+06BF:  BCF    03.7
+06C0:  MOVF   00,W
+06C1:  BTFSC  03.2
+06C2:  GOTO   6D1
+06C3:  MOVLW  05
+06C4:  MOVWF  78
+06C5:  CLRF   77
+06C6:  DECFSZ 77,F
+06C7:  GOTO   6C6
+06C8:  DECFSZ 78,F
+06C9:  GOTO   6C5
+06CA:  MOVLW  2E
+06CB:  MOVWF  77
+06CC:  DECFSZ 77,F
+06CD:  GOTO   6CC
+06CE:  GOTO   6CF
+06CF:  DECFSZ 00,F
+06D0:  GOTO   6C3
+06D1:  RETURN
+.................... #include "disp.c" 
+.................... /************************************************************************ 
+.................... ** 
+.................... **  Driver para S65 (L2F50126) 176x132 - 16bit 565 color RGB 
+.................... **  Marlon - marlonsolucoes@hotmail.com  
+.................... **  CCS Compiler 4.114 - Abril de 2014 
+.................... **  Baseado no driver de Christian Kranz 
+.................... ** 
+.................... *************************************************************************/ 
+.................... // Interessante usar a interface SPI atravez de setup_spi(); 
+....................  
+.................... #include <string.h> 
+.................... //////////////////////////////////////////////////////////////////////////// 
+.................... ////        (C) Copyright 1996,2008 Custom Computer Services            //// 
+.................... //// This source code may only be used by licensed users of the CCS C   //// 
+.................... //// compiler.  This source code may only be distributed to other       //// 
+.................... //// licensed users of the CCS C compiler.  No other use, reproduction  //// 
+.................... //// or distribution is permitted without written permission.           //// 
+.................... //// Derivative programs created using this software in object code     //// 
+.................... //// form are not restricted in any way.                                //// 
+.................... //////////////////////////////////////////////////////////////////////////// 
+....................  
+.................... #ifndef _STRING 
+.................... #define _STRING 
+.................... #include <stddef.h> 
+.................... /////////////////////////////////////////////////////////////////////////// 
+.................... ////        (C) Copyright 1996,2003 Custom Computer Services           //// 
+.................... //// This source code may only be used by licensed users of the CCS C  //// 
+.................... //// compiler.  This source code may only be distributed to other      //// 
+.................... //// licensed users of the CCS C compiler.  No other use, reproduction //// 
+.................... //// or distribution is permitted without written permission.          //// 
+.................... //// Derivative programs created using this software in object code    //// 
+.................... //// form are not restricted in any way.                               //// 
+.................... /////////////////////////////////////////////////////////////////////////// 
+....................  
+.................... #ifndef _STDDEF 
+....................  
+.................... #define _STDDEF 
+....................  
+.................... #if sizeof(unsigned int8 *)==1 
+.................... #define ptrdiff_t unsigned int8 
+.................... #else 
+.................... #define ptrdiff_t unsigned int16 
+.................... #endif 
+....................  
+.................... #if defined(__PCB__) 
+.................... #define size_t unsigned int8 
+.................... #else 
+.................... #define size_t unsigned int16 
+.................... #endif 
+.................... #define wchar_t char 
+.................... #define NULL 0 
+....................  
+.................... #define offsetof(s,f) (offsetofbit(s,f)/8) 
+....................  
+.................... #endif 
+....................  
+.................... #include <ctype.h> 
+.................... //////////////////////////////////////////////////////////////////////////// 
+.................... ////        (C) Copyright 1996,2003 Custom Computer Services            //// 
+.................... //// This source code may only be used by licensed users of the CCS C   //// 
+.................... //// compiler.  This source code may only be distributed to other       //// 
+.................... //// licensed users of the CCS C compiler.  No other use, reproduction  //// 
+.................... //// or distribution is permitted without written permission.           //// 
+.................... //// Derivative programs created using this software in object code     //// 
+.................... //// form are not restricted in any way.                                //// 
+.................... //////////////////////////////////////////////////////////////////////////// 
+....................  
+.................... #ifndef _CTYPE 
+.................... #define _CTYPE 
+....................  
+.................... #define islower(x)  isamong(x,"abcdefghijklmnopqrstuvwxyz") 
+.................... #define isupper(x)  isamong(x,"ABCDEFGHIJKLMNOPQRSTUVWXYZ") 
+.................... #define isalnum(x)  isamong(x,"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz") 
+.................... #define isalpha(x)  isamong(x,"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz") 
+.................... #define isdigit(x)  isamong(x,"0123456789") 
+.................... #define isspace(x)  ((x)==' ') 
+.................... #define isxdigit(x) isamong(x,"0123456789ABCDEFabcdef") 
+.................... #define iscntrl(x)  ((x)<' ') 
+.................... #define isprint(x)  ((x)>=' ') 
+.................... #define isgraph(x)  ((x)>' ') 
+.................... #define ispunct(x)  (((x)>' ')&&!isalnum(x)) 
+....................  
+.................... #endif 
+....................  
+....................  
+....................  
+....................  
+....................  
+.................... ////////////////////////////////////////////// 
+.................... //// Uncomment the following define to    //// 
+.................... //// allow some functions to use a        //// 
+.................... //// quicker algorithm, but use more ROM  //// 
+.................... ////                                      //// 
+.................... //// #define FASTER_BUT_MORE_ROM          //// 
+.................... ////////////////////////////////////////////// 
+....................  
+....................  
+....................  
+.................... /*Copying functions*/ 
+.................... /* standard template: 
+....................    void *memmove(void *s1, void *s2, size_t n). 
+....................    Copies max of n characters safely (not following ending '\0') 
+....................    from s2 in s1; if s2 has less than n characters, appends 0 */ 
+....................  
+.................... char *memmove(void *s1,char *s2,size_t n) 
+.................... { 
+....................    char *sc1; 
+....................    char *sc2; 
+....................    sc1=s1; 
+....................    sc2=s2; 
+....................    if(sc2<sc1 && sc1 <sc2 +n) 
+....................       for(sc1+=n,sc2+=n;0<n;--n) 
+....................          *--sc1=*--sc2; 
+....................    else 
+....................       for(;0<n;--n) 
+....................          *sc1++=*sc2++; 
+....................   return s1; 
+....................   } 
+....................  
+.................... /* Standard template: char *strcpy(char *s1, const char *s2) 
+....................    copies the string s2 including the null character to s1. 
+....................    This is a compiler built in to handle the different address 
+....................    spaces */ 
+....................  
+.................... #define strcopy strcpy 
+....................  
+.................... /* standard template: 
+....................    char *strncpy(char *s1, const char *s2, size_t n). 
+....................    Copies max of n characters (not following ending '\0') 
+....................    from s2 in s1; if s2 has less than n characters, appends 0 */ 
+....................  
+.................... char *strncpy(char *s1, char *s2, size_t n) 
+.................... { 
+....................   char *s; 
+....................  
+....................   for (s = s1; n > 0 && *s2 != '\0'; n--) 
+....................      *s++ = *s2++; 
+....................   for (; n > 0; n--) 
+....................      *s++ = '\0'; 
+....................  
+....................   return(s1); 
+.................... } 
+.................... /***********************************************************/ 
+....................  
+.................... /*concatenation functions*/ 
+.................... /* standard template: char *strcat(char *s1, const char *s2) 
+.................... appends s2 to s1*/ 
+....................  
+.................... char *strcat(char *s1, char *s2) 
+.................... { 
+....................    char *s; 
+....................  
+....................    for (s = s1; *s != '\0'; ++s); 
+....................    while(*s2 != '\0') 
+....................    { 
+....................       *s = *s2; 
+....................       ++s; 
+....................       ++s2; 
+....................    } 
+....................  
+....................    *s = '\0'; 
+....................    return(s1); 
+.................... } 
+.................... /* standard template: char *strncat(char *s1, char *s2,size_t n) 
+.................... appends not more than n characters from s2 to s1*/ 
+....................  
+.................... char *strncat(char *s1, char *s2, size_t n) 
+.................... { 
+....................    char *s; 
+....................  
+....................    for (s = s1; *s != '\0'; ++s); 
+....................    while(*s2 != '\0' && 0<n) 
+....................    { 
+....................       *s = *s2; 
+....................       ++s; 
+....................       ++s2; 
+....................       --n; 
+....................    } 
+....................  
+....................    *s = '\0'; 
+....................    return(s1); 
+.................... } 
+....................  
+.................... /***********************************************************/ 
+....................  
+....................  
+.................... /*comparison functions*/ 
+.................... /* standard template: signed int memcmp(void *s1, void *s2). 
+....................    Compares s1 & s2; returns -1 if s1<s2, 0 if s1=s2, 1 if s1>s2 */ 
+....................  
+.................... signed int8 memcmp(void * s1,char *s2,size_t n) 
+.................... { 
+.................... char *su1, *su2; 
+.................... for(su1=s1, su2=s2; 0<n; ++su1, ++su2, --n) 
+.................... { 
+....................    if(*su1!=*su2) 
+....................       return ((*su1<*su2)?-1:+1); 
+.................... } 
+.................... return 0; 
+.................... } 
+....................  
+.................... /* standard template: int strcmp(const char *s1, const char *s2). 
+....................    Compares s1 & s2; returns -1 if s1<s2, 0 if s1=s2, 1 if s1>s2 */ 
+....................  
+.................... signed int8 strcmp(char *s1, char *s2) 
+.................... { 
+....................    for (; *s1 == *s2; s1++, s2++) 
+....................       if (*s1 == '\0') 
+....................          return(0); 
+....................    return((*s1 < *s2) ? -1: 1); 
+.................... } 
+.................... /* standard template: int strcoll(const char *s1, const char *s2). 
+....................    Compares s1 & s2; returns -1 if s1<s2, 0 if s1=s2, 1 if s1>s2 */ 
+....................  
+.................... signed int8 strcoll(char *s1, char *s2) 
+.................... { 
+....................    for (; *s1 == *s2; s1++, s2++) 
+....................       if (*s1 == '\0') 
+....................          return(0); 
+....................    return((*s1 < *s2) ? -1: 1); 
+.................... } 
+....................  
+.................... /* standard template: 
+....................    int strncmp(const char *s1, const char *s2, size_t n). 
+....................    Compares max of n characters (not following 0) from s1 to s2; 
+....................    returns same as strcmp */ 
+....................  
+.................... signed int8 strncmp(char *s1, char *s2, size_t n) 
+.................... { 
+....................    for (; n > 0; s1++, s2++, n--) 
+....................       if (*s1 != *s2) 
+....................          return((*s1 <*s2) ? -1: 1); 
+....................       else if (*s1 == '\0') 
+....................          return(0); 
+....................    return(0); 
+.................... } 
+.................... /* standard template: 
+....................    int strxfrm(const char *s1, const char *s2, size_t n). 
+....................    transforms maximum of n characters from s2 and places them into s1*/ 
+.................... size_t strxfrm(char *s1, char *s2, size_t n) 
+.................... { 
+....................   char *s; 
+....................   unsigned int8 n1; 
+....................   n1=n; 
+....................   for (s = s1; n > 0 && *s2 != '\0'; n--) 
+....................      *s++ = *s2++; 
+....................   for (; n > 0; n--) 
+....................      *s++ = '\0'; 
+....................  
+....................   return(n1); 
+.................... } 
+....................  
+....................  
+....................  
+....................  
+....................  
+.................... /***********************************************************/ 
+.................... /*Search functions*/ 
+.................... /* standard template: void *memchr(const char *s, int c). 
+....................    Finds first occurrence of c in n characters of s */ 
+....................  
+.................... char *memchr(void *s,unsigned int8 c,size_t n) 
+.................... { 
+....................    char uc; 
+....................    char *su; 
+....................    uc=c; 
+....................    for(su=s;0<n;++su,--n) 
+....................       if(*su==uc) 
+....................       return su; 
+....................    return NULL; 
+.................... } 
+....................  
+.................... /* standard template: char *strchr(const char *s, int c). 
+....................    Finds first occurrence of c in s */ 
+....................  
+.................... char *strchr(char *s, unsigned int8 c) 
+.................... { 
+....................    for (; *s != c; s++) 
+....................       if (*s == '\0') 
+....................          return(0); 
+....................    return(s); 
+.................... } 
+.................... /* standard template: 
+....................    size_t strcspn(const char *s1, const char *s2). 
+....................    Computes length of max initial segment of s1 that 
+....................    consists entirely of characters NOT from s2*/ 
+....................  
+.................... unsigned int8  strcspn(char *s1, char *s2) 
+.................... { 
+....................    char *sc1, *sc2; 
+....................  
+....................    for (sc1 = s1; *sc1 != 0; sc1++) 
+....................       for (sc2 = s2; *sc2 != 0; sc2++) 
+....................          if (*sc1 == *sc2) 
+....................             return(sc1 - s1); 
+....................    return(sc1 - s1); 
+.................... } 
+.................... /* standard template: 
+....................    char *strpbrk(const char *s1, const char *s2). 
+....................    Locates first occurence of any character from s2 in s1; 
+....................    returns s1 if s2 is empty string */ 
+....................  
+.................... char *strpbrk(char *s1, char *s2) 
+.................... { 
+....................    char *sc1, *sc2; 
+....................  
+....................    for (sc1 = s1; *sc1 != 0; sc1++) 
+....................       for (sc2 = s2; *sc2 != 0; sc2++) 
+....................          if (*sc1 == *sc2) 
+....................             return(sc1); 
+....................    return(0); 
+.................... } 
+....................  
+....................  
+.................... /* standard template: char *strrchr(const char *s, int c). 
+....................    Finds last occurrence of c in s */ 
+....................  
+.................... char *strrchr(char *s, unsigned int8 c) 
+.................... { 
+....................    char *p; 
+....................  
+....................    for (p = 0; ; s++) 
+....................    { 
+....................       if (*s == c) 
+....................          p = s; 
+....................       if (*s == '\0') 
+....................          return(p); 
+....................    } 
+.................... } 
+.................... /* computes length of max initial segment of s1 consisting 
+....................    entirely of characters from s2 */ 
+....................  
+.................... unsigned int8  strspn(char *s1, char *s2) 
+.................... { 
+....................    char *sc1, *sc2; 
+....................  
+....................    for (sc1 = s1; *sc1 != 0; sc1++) 
+....................       for (sc2 = s2; ; sc2++) 
+....................     if (*sc2 == '\0') 
+....................        return(sc1 - s1); 
+....................          else if (*sc1 == *sc2) 
+....................             break; 
+....................    return(sc1 - s1); 
+.................... } 
+.................... /* standard template: 
+....................    char *strstr(const char *s1, const char *s2); 
+....................    Locates first occurence of character sequence s2 in s1; 
+....................    returns 0 if s2 is empty string 
+....................  
+....................    Uncomment #define FASTER_BUT_MORE_ROM at the top of the 
+....................    file to use the faster algorithm */ 
+.................... char *strstr(char *s1, char *s2) 
+.................... { 
+....................    char *s, *t; 
+....................  
+....................    #ifdef FASTER_BUT_MORE_ROM 
+....................    if (*s2 == '\0') 
+....................          return(s1); 
+....................    #endif 
+....................  
+....................    while (*s1) 
+....................    { 
+....................       for(s = s1, t = s2; *t && (*s == *t); ++s, ++t); 
+....................  
+....................       if (*t == '\0') 
+....................          return s1; 
+....................       ++s1; 
+....................       #ifdef FASTER_BUT_MORE_ROM 
+....................          while(*s1 != '\0' && *s1 != *s2) 
+....................             ++s1; 
+....................       #endif 
+....................    } 
+....................    return 0; 
+.................... } 
+....................  
+.................... /* standard template: char *strtok(char *s1, const char *s2). 
+....................  
+....................    Finds next token in s1 delimited by a character from separator 
+....................    string s2 (which can be different from call to call).  First call 
+....................    starts at beginning of s1 searching for first character NOT 
+....................    contained in s2; returns 0 if none is found. 
+....................    If one is found, it is the start of first token (return value). 
+....................    Function then searches from there for a character contained in s2. 
+....................    If none is found, current token extends to end of s1, and subsequent 
+....................    searches for a token will return 0.  If one is found, it is 
+....................    overwritten by '\0', which terminates current token.  Function saves 
+....................    pointer to following character from which next search will start. 
+....................    Each subsequent call, with 0 as first argument, starts searching 
+....................    from saved pointer */ 
+....................  
+.................... char *strtok(char *s1, char *s2) 
+.................... { 
+....................    char *beg, *end; 
+....................    static char *save; 
+*
+1685:  BCF    03.5
+1686:  CLRF   28
+1687:  CLRF   29
+....................  
+....................    beg = (s1)? s1: save; 
+....................    beg += strspn(beg, s2); 
+....................    if (*beg == '\0') 
+....................    { 
+....................       *save = ' '; 
+....................       return(0); 
+....................    } 
+....................    end = strpbrk(beg, s2); 
+....................    if (*end != '\0') 
+....................    { 
+....................       *end = '\0'; 
+....................       end++; 
+....................    } 
+....................    save = end; 
+....................    return(beg); 
+.................... } 
+....................  
+.................... /*****************************************************************/ 
+.................... /*Miscellaneous functions*/ 
+.................... /* standard template 
+.................... maps error number in errnum to an error message string 
+.................... Returns: Pointer to string 
+.................... */ 
+.................... #ifdef _ERRNO 
+.................... char * strerror(unsigned int8 errnum) 
+.................... { 
+.................... char s[15]; 
+.................... switch( errnum) 
+.................... { 
+.................... case 0: 
+....................    strcpy(s,"no errors"); 
+....................    return s; 
+.................... case EDOM : 
+....................    strcpy(s,"domain error"); 
+....................    return s; 
+.................... case ERANGE: 
+....................    strcpy(s,"range error"); 
+....................    return s; 
+.................... } 
+.................... } 
+.................... #ENDIF 
+.................... /* standard template: size_t strlen(const char *s). 
+....................    Computes length of s1 (preceding terminating 0) */ 
+....................  
+.................... unsigned int8 strlen(char *s) 
+.................... { 
+....................    char *sc; 
+....................  
+....................    for (sc = s; *sc != 0; sc++); 
+....................    return(sc - s); 
+.................... } 
+....................  
+.................... /* standard template: size_t stricmp(const char *s1, const char *s2). 
+....................    Compares s1 to s2 ignoring case (upper vs. lower) */ 
+....................  
+.................... signed int8 stricmp(char *s1, char *s2) 
+.................... { 
+....................  for(; *s1==*s2||(isalpha(*s1)&&isalpha(*s2)&&(*s1==*s2+32||*s2==*s1+32)); 
+....................     s1++, s2++) 
+....................     if (*s1 == '\0') 
+....................        return(0); 
+....................  return((*s1 < *s2) ? -1: 1); 
+.................... } 
+....................  
+....................  
+.................... /* standard template: char *strlwr(char *s). 
+....................    Replaces uppercase letters by lowercase; 
+....................    returns pointer to new string s */ 
+....................  
+.................... char *strlwr(char *s) 
+.................... { 
+....................    char *p; 
+....................  
+....................    for (p = s; *p != '\0'; p++) 
+....................       if (*p >= 'A' && *p <='Z') 
+....................          *p += 'a' - 'A'; 
+....................    return(s); 
+.................... } 
+....................  
+....................  
+.................... /************************************************************/ 
+....................  
+....................  
+.................... #endif 
+....................  
+....................  
+.................... #define LCD_RS     pin_c0 
+.................... #define LCD_RESET  pin_c1 
+.................... #define LCD_CS     pin_a5   // SS SPI 
+.................... #define LCD_SCK    pin_c3   // CKL SPI 
+.................... #define LCD_DATA   pin_c5   // SDO SPI 
+....................  
+.................... #define DISP_W 132 
+.................... #define DISP_H 176 
+.................... #define CHAR_H 14 
+.................... #define CHAR_W 8 
+.................... #define TEXT_COL 16 
+.................... #define TEXT_ROW 12 
+....................  
+.................... #define _DATCTL 0xBC        // Data Control (data handling in RAM) Padrão: 0xBC 
+.................... #define _DISCTL 0xCA        // Display Control 
+.................... #define _GCP64 0xCB         // pulse set for 64 gray scale 
+.................... #define _GCP16 0xCC         // pulse set for 16 gray scale 
+.................... #define OSSEL 0xD0          // Oscillator select 
+.................... #define GSSET 0xCD          // set for gray scales 
+.................... #define ASCSET 0xAA         // aerea scroll setting 
+.................... #define SCSTART 0xAB        // scroll start setting 
+.................... #define DISON 0xAF          // Display ON (no parameter) 
+.................... #define DISOFF 0xAE         // Display OFF (no parameter) 
+.................... #define DISINV 0xA7         // Display Invert (no parameter) 
+.................... #define DISNOR 0xA6         // Display Normal (no parameter) 
+.................... #define SLPIN  0x95         // Display Sleep (no parameter) 
+.................... #define SLPOUT 0x94         // Display out of sleep (no parameter) 
+.................... #define RAMWR 0x5C          // Display Memory write 
+.................... #define PTLIN 0xA8          // partial screen write 
+....................  
+.................... #define SD_CSET 0x15        // column address setting 
+.................... #define SD_PSET 0x75        // page address setting 
+....................  
+.................... #define FONT58   0 
+.................... #define FONT88   1 
+.................... #define FONT812  2 
+....................  
+.................... #define RETRATO  0 
+.................... #define PAISAGEM 1 
+....................  
+....................  
+.................... // Cores 565  
+.................... #define    BLACK                0x0000  
+.................... #define    WHITE                0xFFFF  
+.................... #define    GRAY                 0xE79C 
+.................... #define    GREEN                0x07E0  
+.................... #define    BLUE                 0x001F  
+.................... #define    RED                  0xF800  
+.................... #define    SKY                  0x5d1c  
+.................... #define    YELLOW               0xffe0  
+.................... #define    MAGENTA              0xf81f 
+.................... #define    CYAN                 0x07ff 
+.................... #define    ORANGE               0xfca0  
+.................... #define    PINK                 0xF97F 
+.................... #define    BROWN                0x8200 
+.................... #define    VIOLET               0x9199 
+.................... #define    SILVER               0xa510 
+.................... #define    GOLD                 0xa508 
+.................... #define    BEGH                 0xf77b 
+.................... #define    NAVY                 0x000F       
+.................... #define    DARK_GREEN           0x03E0       
+.................... #define    DARK_CYAN            0x03EF       
+.................... #define    MAROON               0x7800       
+.................... #define    PURPLE               0x780F       
+.................... #define    OLIVE                0x7BE0       
+.................... #define    LIGHT_GREY           0xC618       
+.................... #define    DARK_GREY            0x7BEF 
+....................  
+....................  
+.................... extern int16 textcolor;    // cor do texto  
+.................... extern int16 backcolor;    // cor de fundo 
+....................  
+.................... void lcd_wrcmd16(uint16_t); 
+.................... void lcd_wrdat16(uint16_t); 
+.................... void lcd_wrdata(uint8_t); 
+.................... void lcd_wrcmd(uint8_t); 
+.................... void lcd_write(char dados);         // Escreve byte no LCD atraves da Int. SPI 
+.................... void fill_screen(int16 color);      // Preenche a tela com a cor especificada ex: fill_screen(RED);  
+.................... void char8x12(int x, int y, char c, int16 BColor, int16 FColor);  
+.................... void char8x12_90(int x, int y, char c, int16 BColor, int16 FColor); 
+.................... void char5x8(int x, int y, char c, int16 BColor, int16 FColor); 
+.................... void char5x8_90(int x, int y, char c, int16 BColor, int16 FColor); 
+.................... void char8x8_90(int x, int y, char c, int16 BColor, int16 FColor); 
+.................... void putstr(int x, int y, char* text, int16 BC, int16 FC, int fonte, int orientacao); 
+.................... void drawBox(int x, int y, long width, long height, int16 Color, int orientacao); 
+.................... void Putpixel(int x, int y, int16 Color, int orientacao); 
+.................... char invByte(char bt);       // Iverte a orientação dos bits  
+.................... void port_init();            // Inicialização das portas 
+.................... void lcd_init(void);         // Inicialização do LCD 
+....................  
+....................  
+.................... BYTE const font8x12[128][12] = { 
+....................   0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,        // sp        0x20 1 
+....................   0x00,0x30,0x78,0x78,0x78,0x30,0x30,0x00,0x30,0x30,0x00,0x00,        // !         0x21 2 
+....................   0x00,0x66,0x66,0x66,0x24,0x00,0x00,0x00,0x00,0x00,0x00,0x00,        // "         0x22 3 
+....................   0x00,0x6C,0x6C,0xFE,0x6C,0x6C,0x6C,0xFE,0x6C,0x6C,0x00,0x00,        // #         0x23 4 
+....................   0x30,0x30,0x7C,0xC0,0xC0,0x78,0x0C,0x0C,0xF8,0x30,0x30,0x00,        // $         0x24 5 
+....................   0x00,0x00,0x00,0xC4,0xCC,0x18,0x30,0x60,0xCC,0x8C,0x00,0x00,        // %         0x25 6 
+....................   0x00,0x70,0xD8,0xD8,0x70,0xFA,0xDE,0xCC,0xDC,0x76,0x00,0x00,        // &         0x26 7 
+....................   0x00,0x30,0x30,0x30,0x60,0x00,0x00,0x00,0x00,0x00,0x00,0x00,        // Grad      0x27  
+....................   0x00,0x0C,0x18,0x30,0x60,0x60,0x60,0x30,0x18,0x0C,0x00,0x00,        // (         0x28 
+....................   0x00,0x60,0x30,0x18,0x0C,0x0C,0x0C,0x18,0x30,0x60,0x00,0x00,        // )         0x29 
+....................   0x00,0x00,0x00,0x66,0x3C,0xFF,0x3C,0x66,0x00,0x00,0x00,0x00,        // *         0x2A 
+....................   0x00,0x00,0x00,0x18,0x18,0x7E,0x18,0x18,0x00,0x00,0x00,0x00,        // +         0x2B 
+....................   0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x38,0x38,0x60,0x00,        // ,         0x2C 
+....................   0x00,0x00,0x00,0x00,0x00,0xFE,0x00,0x00,0x00,0x00,0x00,0x00,        // -         0x2D 
+....................   0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x38,0x38,0x00,0x00,        // .         0x2E 
+....................   0x00,0x00,0x02,0x06,0x0C,0x18,0x30,0x60,0xC0,0x80,0x00,0x00,        // /         0x2F  
+....................   0x00,0x7C,0xC6,0xCE,0xDE,0xD6,0xF6,0xE6,0xC6,0x7C,0x00,0x00,        // 0         0x30 
+....................   0x00,0x10,0x30,0xF0,0x30,0x30,0x30,0x30,0x30,0xFC,0x00,0x00,        // 1         0x31 
+....................   0x00,0x78,0xCC,0xCC,0x0C,0x18,0x30,0x60,0xCC,0xFC,0x00,0x00,        // 2         0x32 
+....................   0x00,0x78,0xCC,0x0C,0x0C,0x38,0x0C,0x0C,0xCC,0x78,0x00,0x00,        // 3         0x33 
+....................   0x00,0x0C,0x1C,0x3C,0x6C,0xCC,0xFE,0x0C,0x0C,0x1E,0x00,0x00,        // 4         0x34 
+....................   0x00,0xFC,0xC0,0xC0,0xC0,0xF8,0x0C,0x0C,0xCC,0x78,0x00,0x00,        // 5         0x35 
+....................   0x00,0x38,0x60,0xC0,0xC0,0xF8,0xCC,0xCC,0xCC,0x78,0x00,0x00,        // 6         0x36 
+....................   0x00,0xFE,0xC6,0xC6,0x06,0x0C,0x18,0x30,0x30,0x30,0x00,0x00,        // 7         0x37 
+....................   0x00,0x78,0xCC,0xCC,0xCC,0x78,0xCC,0xCC,0xCC,0x78,0x00,0x00,        // 8         0x38 
+....................   0x00,0x78,0xCC,0xCC,0xCC,0x7C,0x18,0x18,0x30,0x70,0x00,0x00,        // 9         0x39 
+....................   0x00,0x00,0x00,0x38,0x38,0x00,0x00,0x38,0x38,0x00,0x00,0x00,        // :         0x3A 
+....................   0x00,0x00,0x00,0x38,0x38,0x00,0x00,0x38,0x38,0x18,0x30,0x00,        // ;         0x3B 
+....................   0x00,0x0C,0x18,0x30,0x60,0xC0,0x60,0x30,0x18,0x0C,0x00,0x00,        // <         0x3C 
+....................   0x00,0x00,0x00,0x00,0x7E,0x00,0x7E,0x00,0x00,0x00,0x00,0x00,        // =         0x3D 
+....................   0x00,0x60,0x30,0x18,0x0C,0x06,0x0C,0x18,0x30,0x60,0x00,0x00,        // >         0x3E 
+....................   0x00,0x78,0xCC,0x0C,0x18,0x30,0x30,0x00,0x30,0x30,0x00,0x00,        // ?         0x3F 
+....................   0x00,0x7C,0xC6,0xC6,0xDE,0xDE,0xDE,0xC0,0xC0,0x7C,0x00,0x00,        // @         0x40 
+....................   0x00,0x30,0x78,0xCC,0xCC,0xCC,0xFC,0xCC,0xCC,0xCC,0x00,0x00,        // A         0x41 
+....................   0x00,0xFC,0x66,0x66,0x66,0x7C,0x66,0x66,0x66,0xFC,0x00,0x00,        // B         0x42 
+....................   0x00,0x3C,0x66,0xC6,0xC0,0xC0,0xC0,0xC6,0x66,0x3C,0x00,0x00,        // C         0x43 
+....................   0x00,0xF8,0x6C,0x66,0x66,0x66,0x66,0x66,0x6C,0xF8,0x00,0x00,        // D         0x44 
+....................   0x00,0xFE,0x62,0x60,0x64,0x7C,0x64,0x60,0x62,0xFE,0x00,0x00,        // E         0x45 
+....................   0x00,0xFE,0x66,0x62,0x64,0x7C,0x64,0x60,0x60,0xF0,0x00,0x00,        // F         0x46 
+....................   0x00,0x3C,0x66,0xC6,0xC0,0xC0,0xCE,0xC6,0x66,0x3E,0x00,0x00,        // G         0x47 
+....................   0x00,0xCC,0xCC,0xCC,0xCC,0xFC,0xCC,0xCC,0xCC,0xCC,0x00,0x00,        // H         0x48 
+....................   0x00,0x78,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x78,0x00,0x00,        // I         0x49 
+....................   0x00,0x1E,0x0C,0x0C,0x0C,0x0C,0xCC,0xCC,0xCC,0x78,0x00,0x00,        // J         0x4A 
+....................   0x00,0xE6,0x66,0x6C,0x6C,0x78,0x6C,0x6C,0x66,0xE6,0x00,0x00,        // K         0x4B 
+....................   0x00,0xF0,0x60,0x60,0x60,0x60,0x62,0x66,0x66,0xFE,0x00,0x00,        // L         0x4C 
+....................   0x00,0xC6,0xEE,0xFE,0xFE,0xD6,0xC6,0xC6,0xC6,0xC6,0x00,0x00,        // M         0x4D 
+....................   0x00,0xC6,0xC6,0xE6,0xF6,0xFE,0xDE,0xCE,0xC6,0xC6,0x00,0x00,        // N         0x4E 
+....................   0x00,0x38,0x6C,0xC6,0xC6,0xC6,0xC6,0xC6,0x6C,0x38,0x00,0x00,        // O         0x4F 
+....................   0x00,0xFC,0x66,0x66,0x66,0x7C,0x60,0x60,0x60,0xF0,0x00,0x00,        // P         0x50 
+....................   0x00,0x38,0x6C,0xC6,0xC6,0xC6,0xCE,0xDE,0x7C,0x0C,0x1E,0x00,        // Q         0x51 
+....................   0x00,0xFC,0x66,0x66,0x66,0x7C,0x6C,0x66,0x66,0xE6,0x00,0x00,        // R         0x52 
+....................   0x00,0x78,0xCC,0xCC,0xC0,0x70,0x18,0xCC,0xCC,0x78,0x00,0x00,        // S         0x53 
+....................   0x00,0xFC,0xB4,0x30,0x30,0x30,0x30,0x30,0x30,0x78,0x00,0x00,        // T         0x54 
+....................   0x00,0xCC,0xCC,0xCC,0xCC,0xCC,0xCC,0xCC,0xCC,0x78,0x00,0x00,        // U         0x55 
+....................   0x00,0xCC,0xCC,0xCC,0xCC,0xCC,0xCC,0xCC,0x78,0x30,0x00,0x00,        // V         0x56 
+....................   0x00,0xC6,0xC6,0xC6,0xC6,0xD6,0xD6,0x6C,0x6C,0x6C,0x00,0x00,        // W         0x57 
+....................   0x00,0xCC,0xCC,0xCC,0x78,0x30,0x78,0xCC,0xCC,0xCC,0x00,0x00,        // X         0x58 
+....................   0x00,0xCC,0xCC,0xCC,0xCC,0x78,0x30,0x30,0x30,0x78,0x00,0x00,        // Y         0x59 
+....................   0x00,0xFE,0xCE,0x98,0x18,0x30,0x60,0x62,0xC6,0xFE,0x00,0x00,        // Z         0x5A 
+....................   0x00,0x3C,0x30,0x30,0x30,0x30,0x30,0x30,0x30,0x3C,0x00,0x00,        // [ -       0x5B 
+....................   0x00,0x00,0x80,0xC0,0x60,0x30,0x18,0x0C,0x06,0x02,0x00,0x00,        // backslash 0x5C 
+....................   0x00,0x3C,0x0C,0x0C,0x0C,0x0C,0x0C,0x0C,0x0C,0x3C,0x00,0x00,        // ]         0x5D 
+....................   0x10,0x38,0x6C,0xC6,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,        // ^         0x5E 
+....................   0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xFF,0x00,        // _         0x5F 
+....................   0x30,0x30,0x18,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,        // '         0x60 
+....................   0x00,0x00,0x00,0x00,0x78,0x0C,0x7C,0xCC,0xCC,0x76,0x00,0x00,        // a         0x61 
+....................   0x00,0xE0,0x60,0x60,0x7C,0x66,0x66,0x66,0x66,0xDC,0x00,0x00,        // b         0x62 
+....................   0x00,0x00,0x00,0x00,0x78,0xCC,0xC0,0xC0,0xCC,0x78,0x00,0x00,        // c         0x63 
+....................   0x00,0x1C,0x0C,0x0C,0x7C,0xCC,0xCC,0xCC,0xCC,0x76,0x00,0x00,        // d         0x64 
+....................   0x00,0x00,0x00,0x00,0x78,0xCC,0xFC,0xC0,0xCC,0x78,0x00,0x00,        // e         0x65 
+....................   0x00,0x38,0x6C,0x60,0x60,0xF8,0x60,0x60,0x60,0xF0,0x00,0x00,        // f         0x66 
+....................   0x00,0x00,0x00,0x00,0x76,0xCC,0xCC,0xCC,0x7C,0x0C,0xCC,0x78,        // g         0x67 
+....................   0x00,0xE0,0x60,0x60,0x6C,0x76,0x66,0x66,0x66,0xE6,0x00,0x00,        // h         0x68 
+....................   0x00,0x18,0x18,0x00,0x78,0x18,0x18,0x18,0x18,0x7E,0x00,0x00,        // i         0x69 
+....................   0x00,0x0C,0x0C,0x00,0x3C,0x0C,0x0C,0x0C,0x0C,0xCC,0xCC,0x78,        // j         0x6A 
+....................   0x00,0xE0,0x60,0x60,0x66,0x6C,0x78,0x6C,0x66,0xE6,0x00,0x00,        // k         0x6B 
+....................   0x00,0x78,0x18,0x18,0x18,0x18,0x18,0x18,0x18,0x7E,0x00,0x00,        // l         0x6C 
+....................   0x00,0x00,0x00,0x00,0xFC,0xD6,0xD6,0xD6,0xD6,0xC6,0x00,0x00,        // m         0x6D 
+....................   0x00,0x00,0x00,0x00,0xF8,0xCC,0xCC,0xCC,0xCC,0xCC,0x00,0x00,        // n         0x6E 
+....................   0x00,0x00,0x00,0x00,0x78,0xCC,0xCC,0xCC,0xCC,0x78,0x00,0x00,        // o         0x6F 
+....................   0x00,0x00,0x00,0x00,0xDC,0x66,0x66,0x66,0x66,0x7C,0x60,0xF0,        // p         0x70 
+....................   0x00,0x00,0x00,0x00,0x76,0xCC,0xCC,0xCC,0xCC,0x7C,0x0C,0x1E,        // q         0x71 
+....................   0x00,0x00,0x00,0x00,0xEC,0x6E,0x76,0x60,0x60,0xF0,0x00,0x00,        // r         0x72 
+....................   0x00,0x00,0x00,0x00,0x78,0xCC,0x60,0x18,0xCC,0x78,0x00,0x00,        // s         0x73 
+....................   0x00,0x00,0x20,0x60,0xFC,0x60,0x60,0x60,0x6C,0x38,0x00,0x00,        // t         0x74 
+....................   0x00,0x00,0x00,0x00,0xCC,0xCC,0xCC,0xCC,0xCC,0x76,0x00,0x00,        // u         0x75 
+....................   0x00,0x00,0x00,0x00,0xCC,0xCC,0xCC,0xCC,0x78,0x30,0x00,0x00,        // v         0x76 
+....................   0x00,0x00,0x00,0x00,0xC6,0xC6,0xD6,0xD6,0x6C,0x6C,0x00,0x00,        // w         0x77 
+....................   0x00,0x00,0x00,0x00,0xC6,0x6C,0x38,0x38,0x6C,0xC6,0x00,0x00,        // x         0x78 
+....................   0x00,0x00,0x00,0x00,0x66,0x66,0x66,0x66,0x3C,0x0C,0x18,0xF0,        // y         0x79 
+....................   0x00,0x00,0x00,0x00,0xFC,0x8C,0x18,0x60,0xC4,0xFC,0x00,0x00,        // z         0x7A 
+....................   0x00,0x1C,0x30,0x30,0x60,0xC0,0x60,0x30,0x30,0x1C,0x00,0x00,        // {         0x7B 
+....................   0x00,0x18,0x18,0x18,0x18,0x00,0x18,0x18,0x18,0x18,0x00,0x00,        // |         0x7C 
+....................   0x00,0xE0,0x30,0x30,0x18,0x0C,0x18,0x30,0x30,0xE0,0x00,0x00,        // }         0x7D 
+....................   0x00,0x73,0xDA,0xCE,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,        // ->        0x7E 
+....................   0x00,0x00,0x00,0x10,0x38,0x6C,0xC6,0xC6,0xFE,0x00,0x00,0x00,        // <-        0x7F 
+.................... }; 
+....................  
+.................... BYTE const font8x8[128][8] = { 
+....................   0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,  // Leerzeichen 0x20 32 0 
+....................   0x00,0x00,0x00,0xF2,0xF2,0x00,0x00,0x00,  // ! 33 1 
+....................   0x00,0xE0,0xE0,0x00,0x00,0xE0,0xE0,0x00,  // " 34 2 
+....................   0x28,0xFE,0xFE,0x28,0x28,0xFE,0xFE,0x28,  // # 35 3 
+....................   0x00,0x48,0x5C,0xD6,0xD6,0x74,0x24,0x00,  // $ 36 4  
+....................   0x00,0xC6,0x66,0x30,0x18,0xCC,0xC6,0x00,  // % 37 5 
+....................   0x0A,0x4E,0xEE,0xB2,0xB2,0xFE,0x4C,0x00,  // & 38 6 
+....................   0x00,0x80,0xC0,0x60,0x20,0x00,0x00,0x00,  // ' 39 7 
+....................   0x00,0x00,0x82,0xC6,0x7C,0x38,0x00,0x00,  // ( 40 8 
+....................   0x00,0x00,0x38,0x7C,0xC6,0x82,0x00,0x00,  // ) 41 9 
+....................   0x10,0x54,0x7C,0x38,0x38,0x7C,0x54,0x10,  // * 42 10 
+....................   0x00,0x10,0x10,0x7C,0x7C,0x10,0x10,0x00,  // + 43 11 
+....................   0x00,0x00,0x00,0x06,0x07,0x01,0x00,0x00,  // , 44 12 
+....................   0x00,0x10,0x10,0x10,0x10,0x10,0x10,0x00,  // - 45 13 
+....................   0x00,0x00,0x00,0x06,0x06,0x00,0x00,0x00,  // . 46 14  
+....................   0x40,0x60,0x30,0x18,0x0C,0x06,0x02,0x00,  // / 47 15 
+....................   0x00,0x7C,0xFE,0xA2,0x92,0xFE,0x7C,0x00,  // 0  0x30 48 16 
+....................   0x00,0x02,0x02,0xFE,0xFE,0x22,0x02,0x00,  // 1 49 
+....................   0x00,0x62,0xF2,0x92,0x8A,0xCE,0x46,0x00,  // 2 50 
+....................   0x00,0x6C,0xFE,0x92,0x92,0xC6,0x44,0x00,  // 3 51 
+....................   0x08,0xFE,0xFE,0x68,0x28,0x18,0x18,0x00,  // 4 52 
+....................   0x00,0x9C,0xBE,0xA2,0xA2,0xE6,0xE4,0x00,  // 5 53 
+....................   0x00,0x4C,0xDE,0x92,0x92,0xFE,0x7C,0x00,  // 6 54 
+....................   0x00,0xC0,0xE0,0xBE,0x9E,0xC0,0xC0,0x00,  // 7 55 
+....................   0x00,0x6C,0xFE,0x92,0x92,0xFE,0x6C,0x00,  // 8 56 
+....................   0x00,0x7C,0xFE,0x92,0x92,0xF6,0x64,0x00,  // 9 57 
+....................   0x00,0x00,0x00,0x24,0x24,0x00,0x00,0x00,  // : 58 
+....................   0x00,0x00,0x00,0x26,0x27,0x01,0x00,0x00,  // ; 59 
+....................   0x00,0x82,0x82,0xC6,0x6C,0x38,0x10,0x00,  // < 60 
+....................   0x00,0x28,0x28,0x28,0x28,0x28,0x28,0x00,  // = 61 
+....................   0x00,0x10,0x38,0x6C,0xC6,0x82,0x82,0x00,  // > 62 
+....................   0x00,0x60,0xF0,0x9A,0x8A,0xC0,0x40,0x00,  // ? 63 até aqui subtrai 0x20  
+....................   0x00,0x74,0xF2,0xB2,0x82,0xFE,0x7C,0x00,  // @ 64 
+....................   0x00,0x3E,0x7E,0xD0,0xD0,0x7E,0x3E,0x00,  // A  0x41 65 
+....................   0x00,0x6C,0xFE,0x92,0x92,0xFE,0xFE,0x00,  // B 66 
+....................   0x00,0x44,0xC6,0x82,0x82,0xFE,0x7C,0x00,  // C 67 
+....................   0x00,0x38,0x7C,0xC6,0x82,0xFE,0xFE,0x00,  // D 68 
+....................   0x00,0x82,0x82,0x92,0x92,0xFE,0xFE,0x00,  // E 69 
+....................   0x00,0x80,0x80,0x90,0x90,0xFE,0xFE,0x00,  // F 70 
+....................   0x00,0x5C,0xDE,0x92,0x82,0xFE,0x7C,0x00,  // G 71 
+....................   0x00,0xFE,0xFE,0x10,0x10,0xFE,0xFE,0x00,  // H 72 
+....................   0x00,0x00,0x82,0xFE,0xFE,0x82,0x00,0x00,  // I 73 
+....................   0x00,0x80,0xFC,0xFE,0x82,0x06,0x04,0x00,  // J 74 
+....................   0x00,0x82,0xC6,0x6C,0x38,0xFE,0xFE,0x00,  // K 75 
+....................   0x00,0x02,0x02,0x02,0x02,0xFE,0xFE,0x00,  // L 76 
+....................   0xFE,0xFE,0x60,0x30,0x60,0xFE,0xFE,0x00,  // M 77 
+....................   0x00,0xFE,0xFE,0x38,0x70,0xFE,0xFE,0x00,  // N 78 
+....................   0x00,0x7C,0xFE,0x82,0x82,0xFE,0x7C,0x00,   // O 79 
+....................  
+....................   0x00,0x60,0xF0,0x90,0x90,0xFE,0xFE,0x00,  // P 80 
+....................   0x00,0x7A,0xFE,0x86,0x84,0xFC,0x78,0x00,  // Q 81 
+....................   0x00,0x62,0xF6,0x9C,0x98,0xFE,0xFE,0x00,  // R 82 
+....................   0x00,0x4C,0xDE,0x92,0x92,0xF6,0x64,0x00,  // S 83 
+....................   0x00,0x80,0x80,0xFE,0xFE,0x80,0x80,0x00,  // T 84 
+....................   0x00,0xFC,0xFE,0x02,0x02,0xFE,0xFC,0x00,  // U 85 
+....................   0x00,0xF8,0xFC,0x06,0x06,0xFC,0xF8,0x00,  // V 86 
+....................   0xFE,0xFE,0x0C,0x18,0x0C,0xFE,0xFE,0x00,  // W 87 
+....................   0x00,0xC6,0xEE,0x38,0x38,0xEE,0xC6,0x00,  // X 88 
+....................   0x00,0xE0,0xF0,0x1E,0x1E,0xF0,0xE0,0x00,  // Y 89 
+....................   0x00,0xC2,0xE2,0xB2,0x9A,0x8E,0x86,0x00,  // Z 90 
+....................   0x00,0x00,0x82,0x82,0xFE,0xFE,0x00,0x00,  // [ 91 
+....................   0x40,0x60,0x30,0x18,0x0C,0x06,0x02,0x00,  // backslash 92 
+....................   0x00,0x00,0xFE,0xFE,0x82,0x82,0x00,0x00,  // ] 93 
+....................   0x00,0x80,0xC0,0x60,0x20,0x00,0x00,0x00,  // ^ 94 
+....................   0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01,  // _ 95 
+....................   0x00,0x80,0xC0,0x60,0x20,0x00,0x00,0x00,  // ` 96 
+....................   0x00,0x1E,0x3E,0x2A,0x2A,0x2E,0x04,0x00,  // a 97 
+....................   0x00,0x0C,0x1E,0x12,0x12,0x7E,0x7E,0x00,  // b 98 
+....................   0x00,0x00,0x22,0x22,0x22,0x3E,0x1C,0x00,  // c 99 
+....................   0x00,0x7E,0x7E,0x12,0x12,0x1E,0x0C,0x00,  // d 100 
+....................   0x00,0x18,0x3A,0x2A,0x2A,0x3E,0x1C,0x00,  // e 101 
+....................   0x00,0x50,0x50,0x7E,0x3E,0x10,0x00,0x00,  // f 102 
+....................   0x00,0x3E,0x3F,0x25,0x25,0x3D,0x19,0x00,  // g 103 
+....................   0x00,0x0E,0x1E,0x10,0x10,0x7E,0x7E,0x00,  // h 104 
+....................   0x00,0x00,0x02,0x5E,0x5E,0x12,0x00,0x00,  // i 105 
+....................   0x00,0x5E,0x5F,0x01,0x01,0x01,0x00,0x00,  // j 106 
+....................   0x00,0x02,0x16,0x1C,0x08,0x7E,0x7E,0x00,  // k 107 
+....................   0x00,0x00,0x02,0x7E,0x7E,0x42,0x00,0x00,  // l 108 
+....................   0x1E,0x3E,0x38,0x1C,0x18,0x3E,0x3E,0x00,  // m 109  
+....................   0x00,0x1E,0x3E,0x20,0x20,0x3E,0x3E,0x00,  // n 110 
+....................   0x00,0x1C,0x3E,0x22,0x22,0x3E,0x1C,0x00,  // o 111 
+....................   0x00,0x18,0x3C,0x24,0x24,0x3F,0x3F,0x00,  // p 112 
+....................   0x00,0x3F,0x3F,0x24,0x24,0x3C,0x18,0x00,  // q 113 
+....................   0x00,0x10,0x30,0x20,0x20,0x3E,0x3E,0x00,  // r 114 
+....................   0x00,0x24,0x2E,0x2A,0x2A,0x3A,0x12,0x00,  // s 115 
+....................   0x00,0x22,0x22,0x7E,0x7C,0x20,0x20,0x00,  // t 116 
+....................   0x00,0x3E,0x3E,0x02,0x02,0x3E,0x3C,0x00,  // u 117 
+....................   0x00,0x38,0x3C,0x06,0x06,0x3C,0x38,0x00,  // v 118 
+....................   0x38,0x3E,0x0E,0x1C,0x0E,0x3E,0x38,0x00,  // w 119 
+....................   0x00,0x22,0x36,0x1C,0x1C,0x36,0x22,0x00,  // x 120 
+....................   0x00,0x3C,0x3E,0x07,0x05,0x3D,0x39,0x00,  // y 121 
+....................   0x00,0x22,0x32,0x3A,0x2E,0x26,0x22,0x00,  // z 122 
+....................   0x00,0x00,0x82,0x82,0xFE,0xFE,0x00,0x00,  // ] 123 
+....................   0x00,0x44,0x92,0x92,0x7A,0x3E,0x16,0x02,  // Pfund 124 
+....................   0x00,0x00,0xFE,0xFE,0x82,0x82,0x00,0x00,  // [ 125 
+....................   0x00,0x10,0x30,0x7F,0x7F,0x30,0x10,0x00,  // Pfeil hoch 126 
+....................   0x18,0x18,0x18,0x18,0x7E,0x3C,0x18,0x00,  // Pfeil links 127 
+.................... }; 
+....................  
+.................... BYTE const font5x8[128][5] =  { 
+....................   0x00,0x00,0x00,0x00,0x00,   // 20 space  
+....................   0x00,0x00,0x5f,0x00,0x00,   // 21 ! 
+....................   0x00,0x07,0x00,0x07,0x00,   // 22 " 
+....................   0x14,0x7f,0x14,0x7f,0x14,   // 23 # 
+....................   0x24,0x2a,0x7f,0x2a,0x12,   // 24 $ 
+....................   0x23,0x13,0x08,0x64,0x62,   // 25 % 
+....................   0x36,0x49,0x55,0x22,0x50,   // 26 & 
+....................   0x00,0x05,0x03,0x00,0x00,   // 27 ' 
+....................   0x00,0x1c,0x22,0x41,0x00,   // 28 ( 
+....................   0x00,0x41,0x22,0x1c,0x00,   // 29 ) 
+....................   0x14,0x08,0x3e,0x08,0x14,   // 2a * 
+....................   0x08,0x08,0x3e,0x08,0x08,   // 2b + 
+....................   0x00,0x50,0x30,0x00,0x00,   // 2c , 
+....................   0x08,0x08,0x08,0x08,0x08,   // 2d - 
+....................   0x00,0x60,0x60,0x00,0x00,   // 2e . 
+....................   0x20,0x10,0x08,0x04,0x02,   // 2f / 
+....................   0x3e,0x51,0x49,0x45,0x3e,   // 30 0 
+....................   0x00,0x42,0x7f,0x40,0x00,   // 31 1 
+....................   0x42,0x61,0x51,0x49,0x46,   // 32 2 
+....................   0x21,0x41,0x45,0x4b,0x31,   // 33 3 
+....................   0x18,0x14,0x12,0x7f,0x10,   // 34 4 
+....................   0x27,0x45,0x45,0x45,0x39,   // 35 5 
+....................   0x3c,0x4a,0x49,0x49,0x30,   // 36 6 
+....................   0x01,0x71,0x09,0x05,0x03,   // 37 7 
+....................   0x36,0x49,0x49,0x49,0x36,   // 38 8 
+....................   0x06,0x49,0x49,0x29,0x1e,   // 39 9 
+....................   0x00,0x36,0x36,0x00,0x00,   // 3a : 
+....................   0x00,0x56,0x36,0x00,0x00,   // 3b ; 
+....................   0x08,0x14,0x22,0x41,0x00,   // 3c < 
+....................   0x14,0x14,0x14,0x14,0x14,   // 3d = 
+....................   0x00,0x41,0x22,0x14,0x08,   // 3e > 
+....................   0x02,0x01,0x51,0x09,0x06,   // 3f ? 
+....................   0x32,0x49,0x79,0x41,0x3e,   // 40 @ 
+....................   0x7e,0x11,0x11,0x11,0x7e,   // 41 A 
+....................   0x7f,0x49,0x49,0x49,0x36,   // 42 B 
+....................   0x3e,0x41,0x41,0x41,0x22,   // 43 C 
+....................   0x7f,0x41,0x41,0x22,0x1c,   // 44 D 
+....................   0x7f,0x49,0x49,0x49,0x41,   // 45 E 
+....................   0x7f,0x09,0x09,0x09,0x01,   // 46 F 
+....................   0x3e,0x41,0x49,0x49,0x7a,   // 47 G 
+....................   0x7f,0x08,0x08,0x08,0x7f,   // 48 H 
+....................   0x00,0x41,0x7f,0x41,0x00,   // 49 I 
+....................   0x20,0x40,0x41,0x3f,0x01,   // 4a J 
+....................   0x7f,0x08,0x14,0x22,0x41,   // 4b K 
+....................   0x7f,0x40,0x40,0x40,0x40,   // 4c L 
+....................   0x7f,0x02,0x0c,0x02,0x7f,   // 4d M 
+....................   0x7f,0x04,0x08,0x10,0x7f,   // 4e N 
+....................   0x3e,0x41,0x41,0x41,0x3e,    // 4f O 
+....................  
+....................   0x7f,0x09,0x09,0x09,0x06,   // 50 P 
+....................   0x3e,0x41,0x51,0x21,0x5e,   // 51 Q 
+....................   0x7f,0x09,0x19,0x29,0x46,   // 52 R 
+....................   0x46,0x49,0x49,0x49,0x31,   // 53 S 
+....................   0x01,0x01,0x7f,0x01,0x01,   // 54 T 
+....................   0x3f,0x40,0x40,0x40,0x3f,   // 55 U 
+....................   0x1f,0x20,0x40,0x20,0x1f,   // 56 V 
+....................   0x3f,0x40,0x38,0x40,0x3f,   // 57 W 
+....................   0x63,0x14,0x08,0x14,0x63,   // 58 X 
+....................   0x07,0x08,0x70,0x08,0x07,   // 59 Y 
+....................   0x61,0x51,0x49,0x45,0x43,   // 5a Z 
+....................   0x00,0x7f,0x41,0x41,0x00,   // 5b [ 
+....................   0x02,0x04,0x08,0x10,0x20,   // 5c 
+....................   0x00,0x41,0x41,0x7f,0x00,   // 5d 
+....................   0x04,0x02,0x01,0x02,0x04,   // 5e 
+....................   0x40,0x40,0x40,0x40,0x40,   // 5f 
+....................   0x00,0x01,0x02,0x04,0x00,   // 60 
+....................   0x20,0x54,0x54,0x54,0x78,   // 61 a 
+....................   0x7f,0x48,0x44,0x44,0x38,   // 62 b 
+....................   0x38,0x44,0x44,0x44,0x20,   // 63 c 
+....................   0x38,0x44,0x44,0x48,0x7f,   // 64 d 
+....................   0x38,0x54,0x54,0x54,0x18,   // 65 e 
+....................   0x08,0x7e,0x09,0x01,0x02,   // 66 f 
+....................   0x0c,0x52,0x52,0x52,0x3e,   // 67 g 
+....................   0x7f,0x08,0x04,0x04,0x78,   // 68 h 
+....................   0x00,0x44,0x7d,0x40,0x00,   // 69 i 
+....................   0x20,0x40,0x44,0x3d,0x00,   // 6a j 
+....................   0x7f,0x10,0x28,0x44,0x00,   // 6b k 
+....................   0x00,0x41,0x7f,0x40,0x00,   // 6c l 
+....................   0x7c,0x04,0x18,0x04,0x78,   // 6d m 
+....................   0x7c,0x08,0x04,0x04,0x78,   // 6e n 
+....................   0x38,0x44,0x44,0x44,0x38,   // 6f o 
+....................   0x7c,0x14,0x14,0x14,0x08,   // 70 p 
+....................   0x08,0x14,0x14,0x18,0x7c,   // 71 q 
+....................   0x7c,0x08,0x04,0x04,0x08,   // 72 r 
+....................   0x48,0x54,0x54,0x54,0x20,   // 73 s 
+....................   0x04,0x3f,0x44,0x40,0x20,   // 74 t 
+....................   0x3c,0x40,0x40,0x20,0x7c,   // 75 u 
+....................   0x1c,0x20,0x40,0x20,0x1c,   // 76 v 
+....................   0x3c,0x40,0x30,0x40,0x3c,   // 77 w 
+....................   0x44,0x28,0x10,0x28,0x44,   // 78 x 
+....................   0x0c,0x50,0x50,0x50,0x3c,   // 79 y 
+....................   0x44,0x64,0x54,0x4c,0x44,   // 7a z 
+....................   0x00,0x08,0x36,0x41,0x00,   // 7b 
+....................   0x00,0x00,0x7f,0x00,0x00,   // 7c 
+....................   0x00,0x41,0x36,0x08,0x00,   // 7d 
+....................   0x10,0x08,0x08,0x10,0x08,   // 7e 
+....................   0x78,0x46,0x41,0x46,0x78    // 7f 
+.................... }; 
+....................  
+.................... int16 backcolor=0xFFFF;    // cor do fundo 
+.................... int16 textcolor=0x0000;    // cor do texto 
+....................  
+.................... void port_init(){ 
+....................   output_low(LCD_RESET);  
+*
+0E92:  BCF    2E.1
+0E93:  MOVF   2E,W
+0E94:  BSF    03.5
+0E95:  MOVWF  07
+0E96:  BCF    03.5
+0E97:  BCF    07.1
+....................   output_high(LCD_DATA);  
+0E98:  BCF    2E.5
+0E99:  MOVF   2E,W
+0E9A:  BSF    03.5
+0E9B:  MOVWF  07
+0E9C:  BCF    03.5
+0E9D:  BSF    07.5
+....................   output_low(LCD_CS);    
+0E9E:  BSF    03.5
+0E9F:  BCF    05.5
+0EA0:  BCF    03.5
+0EA1:  BCF    05.5
+....................   output_low(LCD_SCK);    
+0EA2:  BCF    2E.3
+0EA3:  MOVF   2E,W
+0EA4:  BSF    03.5
+0EA5:  MOVWF  07
+0EA6:  BCF    03.5
+0EA7:  BCF    07.3
+....................   output_high(LCD_RS);    
+0EA8:  BCF    2E.0
+0EA9:  MOVF   2E,W
+0EAA:  BSF    03.5
+0EAB:  MOVWF  07
+0EAC:  BCF    03.5
+0EAD:  BSF    07.0
+.................... } 
+....................  
+.................... void lcd_write(char dados){ 
+....................   spi_write(dados); 
+*
+06D2:  MOVF   13,W
+06D3:  BSF    03.5
+06D4:  MOVF   24,W
+06D5:  BCF    03.5
+06D6:  MOVWF  13
+06D7:  BSF    03.5
+06D8:  RRF    14,W
+06D9:  BTFSS  03.0
+06DA:  GOTO   6D8
+.................... } 
+06DB:  BCF    03.5
+06DC:  RETURN
+....................  
+.................... void lcd_wrcmd(int output_data){  
+....................   output_low(LCD_RS); 
+06DD:  BCF    2E.0
+06DE:  MOVF   2E,W
+06DF:  BSF    03.5
+06E0:  MOVWF  07
+06E1:  BCF    03.5
+06E2:  BCF    07.0
+....................   lcd_write(output_data); 
+06E3:  BSF    03.5
+06E4:  MOVF   20,W
+06E5:  MOVWF  24
+06E6:  BCF    03.5
+06E7:  CALL   6D2
+....................   lcd_write(0x00); 
+06E8:  BSF    03.5
+06E9:  CLRF   24
+06EA:  BCF    03.5
+06EB:  CALL   6D2
+....................   output_high(LCD_RS); 
+06EC:  BCF    2E.0
+06ED:  MOVF   2E,W
+06EE:  BSF    03.5
+06EF:  MOVWF  07
+06F0:  BCF    03.5
+06F1:  BSF    07.0
+.................... } 
+06F2:  RETURN
+....................  
+.................... void lcd_wrdata(int output_data){ 
+....................   lcd_write(output_data); 
+06F3:  BSF    03.5
+06F4:  MOVF   21,W
+06F5:  MOVWF  24
+06F6:  BCF    03.5
+06F7:  CALL   6D2
+....................   lcd_write(0x00);   
+06F8:  BSF    03.5
+06F9:  CLRF   24
+06FA:  BCF    03.5
+06FB:  CALL   6D2
+.................... } 
+06FC:  RETURN
+....................  
+.................... void lcd_wrcmd16(int16 dat){ 
+....................   lcd_wrcmd((dat>>8)); 
+....................   lcd_wrcmd(dat); 
+.................... } 
+....................  
+.................... void lcd_wrdat16(int16 dat){ 
+....................   lcd_write(dat>>8); 
+06FD:  BSF    03.5
+06FE:  MOVF   21,W
+06FF:  MOVWF  22
+0700:  CLRF   23
+0701:  MOVF   22,W
+0702:  MOVWF  24
+0703:  BCF    03.5
+0704:  CALL   6D2
+....................   lcd_write(dat); 
+0705:  BSF    03.5
+0706:  MOVF   20,W
+0707:  MOVWF  24
+0708:  BCF    03.5
+0709:  CALL   6D2
+.................... } 
+070A:  RETURN
+....................  
+.................... void fill_screen(int16 color){ 
+....................   int16 i; 
+....................   output_low(LCD_CS);  // Seleciona o Display 
+070B:  BSF    03.5
+070C:  BCF    05.5
+070D:  BCF    03.5
+070E:  BCF    05.5
+....................    
+....................   lcd_wrcmd(SD_CSET); 
+070F:  MOVLW  15
+0710:  BSF    03.5
+0711:  MOVWF  20
+0712:  BCF    03.5
+0713:  CALL   6DD
+....................   lcd_wrdata(0x08);  // o inicio é 8 e não 0 
+0714:  MOVLW  08
+0715:  BSF    03.5
+0716:  MOVWF  21
+0717:  BCF    03.5
+0718:  CALL   6F3
+....................   lcd_wrdata(0x01); 
+0719:  MOVLW  01
+071A:  BSF    03.5
+071B:  MOVWF  21
+071C:  BCF    03.5
+071D:  CALL   6F3
+....................   lcd_wrdata(0x8B);  // o final é 00x8B = 0x83+8 
+071E:  MOVLW  8B
+071F:  BSF    03.5
+0720:  MOVWF  21
+0721:  BCF    03.5
+0722:  CALL   6F3
+....................   lcd_wrdata(0x01); 
+0723:  MOVLW  01
+0724:  BSF    03.5
+0725:  MOVWF  21
+0726:  BCF    03.5
+0727:  CALL   6F3
+....................  
+....................   lcd_wrcmd(SD_PSET); 
+0728:  MOVLW  75
+0729:  BSF    03.5
+072A:  MOVWF  20
+072B:  BCF    03.5
+072C:  CALL   6DD
+....................   lcd_wrdata(0x00); 
+072D:  BSF    03.5
+072E:  CLRF   21
+072F:  BCF    03.5
+0730:  CALL   6F3
+....................   lcd_wrdata(0xAF); 
+0731:  MOVLW  AF
+0732:  BSF    03.5
+0733:  MOVWF  21
+0734:  BCF    03.5
+0735:  CALL   6F3
+....................    
+....................   lcd_wrcmd(RAMWR);  // Escrever na RAM do display  
+0736:  MOVLW  5C
+0737:  BSF    03.5
+0738:  MOVWF  20
+0739:  BCF    03.5
+073A:  CALL   6DD
+....................  
+....................   for (i=0; i<DISP_W*DISP_H; i++) 
+073B:  CLRF   4A
+073C:  CLRF   49
+073D:  MOVF   4A,W
+073E:  SUBLW  5A
+073F:  BTFSS  03.0
+0740:  GOTO   754
+0741:  BTFSS  03.2
+0742:  GOTO   747
+0743:  MOVF   49,W
+0744:  SUBLW  BF
+0745:  BTFSS  03.0
+0746:  GOTO   754
+....................     lcd_wrdat16(color);     //   Plotagem do pixel com a cor especificada 
+0747:  MOVF   48,W
+0748:  BSF    03.5
+0749:  MOVWF  21
+074A:  BCF    03.5
+074B:  MOVF   47,W
+074C:  BSF    03.5
+074D:  MOVWF  20
+074E:  BCF    03.5
+074F:  CALL   6FD
+0750:  INCF   49,F
+0751:  BTFSC  03.2
+0752:  INCF   4A,F
+0753:  GOTO   73D
+....................   output_high(LCD_CS);   
+0754:  BSF    03.5
+0755:  BCF    05.5
+0756:  BCF    03.5
+0757:  BSF    05.5
+.................... } 
+0758:  RETURN
+....................  
+....................  
+.................... void drawBox(int x, int y, long width, long height, int16 Color, int orientacao){ 
+....................   long i; 
+....................   output_low(LCD_CS);  
+*
+1000:  BSF    03.5
+1001:  BCF    05.5
+1002:  BCF    03.5
+1003:  BCF    05.5
+....................     
+....................   if (orientacao == PAISAGEM){    
+1004:  DECFSZ 4F,W
+1005:  GOTO   05A
+....................      lcd_wrcmd(SD_CSET); 
+1006:  MOVLW  15
+1007:  BSF    03.5
+1008:  MOVWF  20
+1009:  BCF    0A.4
+100A:  BCF    03.5
+100B:  CALL   6DD
+100C:  BSF    0A.4
+....................      lcd_wrdata(0x08+132-y-height);        // O Inicio é 8 e não 0  
+100D:  MOVF   48,W
+100E:  SUBLW  8C
+100F:  MOVWF  78
+1010:  MOVF   4B,W
+1011:  SUBWF  78,W
+1012:  MOVWF  52
+1013:  CLRF   53
+1014:  MOVF   4C,W
+1015:  BTFSS  03.0
+1016:  INCFSZ 4C,W
+1017:  SUBWF  53,F
+1018:  MOVF   52,W
+1019:  BSF    03.5
+101A:  MOVWF  21
+101B:  BCF    0A.4
+101C:  BCF    03.5
+101D:  CALL   6F3
+101E:  BSF    0A.4
+....................      lcd_wrdata(0x01);           
+101F:  MOVLW  01
+1020:  BSF    03.5
+1021:  MOVWF  21
+1022:  BCF    0A.4
+1023:  BCF    03.5
+1024:  CALL   6F3
+1025:  BSF    0A.4
+....................      lcd_wrdata(0x08+132-y-1);  // o final é 00x8B = 0x83+8 
+1026:  MOVF   48,W
+1027:  SUBLW  8C
+1028:  ADDLW  FF
+1029:  MOVWF  52
+102A:  BSF    03.5
+102B:  MOVWF  21
+102C:  BCF    0A.4
+102D:  BCF    03.5
+102E:  CALL   6F3
+102F:  BSF    0A.4
+....................      lcd_wrdata(0x01); 
+1030:  MOVLW  01
+1031:  BSF    03.5
+1032:  MOVWF  21
+1033:  BCF    0A.4
+1034:  BCF    03.5
+1035:  CALL   6F3
+1036:  BSF    0A.4
+....................       
+....................      lcd_wrcmd(SD_PSET); 
+1037:  MOVLW  75
+1038:  BSF    03.5
+1039:  MOVWF  20
+103A:  BCF    0A.4
+103B:  BCF    03.5
+103C:  CALL   6DD
+103D:  BSF    0A.4
+....................      lcd_wrdata(x); 
+103E:  MOVF   47,W
+103F:  BSF    03.5
+1040:  MOVWF  21
+1041:  BCF    0A.4
+1042:  BCF    03.5
+1043:  CALL   6F3
+1044:  BSF    0A.4
+....................      lcd_wrdata(x+width-1); 
+1045:  MOVF   47,W
+1046:  ADDWF  49,W
+1047:  MOVWF  52
+1048:  MOVF   4A,W
+1049:  MOVWF  53
+104A:  BTFSC  03.0
+104B:  INCF   53,F
+104C:  MOVLW  01
+104D:  SUBWF  52,F
+104E:  MOVLW  00
+104F:  BTFSS  03.0
+1050:  MOVLW  01
+1051:  SUBWF  53,F
+1052:  MOVF   52,W
+1053:  BSF    03.5
+1054:  MOVWF  21
+1055:  BCF    0A.4
+1056:  BCF    03.5
+1057:  CALL   6F3
+1058:  BSF    0A.4
+....................   } 
+....................   else if (orientacao == RETRATO){ 
+1059:  GOTO   0B2
+105A:  MOVF   4F,F
+105B:  BTFSS  03.2
+105C:  GOTO   0B2
+....................      lcd_wrcmd(SD_CSET); 
+105D:  MOVLW  15
+105E:  BSF    03.5
+105F:  MOVWF  20
+1060:  BCF    0A.4
+1061:  BCF    03.5
+1062:  CALL   6DD
+1063:  BSF    0A.4
+....................      lcd_wrdata(0x08+x);        // O Inicio é 8 e não 0  
+1064:  MOVLW  08
+1065:  ADDWF  47,W
+1066:  MOVWF  52
+1067:  BSF    03.5
+1068:  MOVWF  21
+1069:  BCF    0A.4
+106A:  BCF    03.5
+106B:  CALL   6F3
+106C:  BSF    0A.4
+....................      lcd_wrdata(0x01);           
+106D:  MOVLW  01
+106E:  BSF    03.5
+106F:  MOVWF  21
+1070:  BCF    0A.4
+1071:  BCF    03.5
+1072:  CALL   6F3
+1073:  BSF    0A.4
+....................      lcd_wrdata(0x08+x+width-1);  // o final é 00x8B = 0x83+8 
+1074:  MOVLW  08
+1075:  ADDWF  47,W
+1076:  ADDWF  49,W
+1077:  MOVWF  52
+1078:  MOVF   4A,W
+1079:  MOVWF  53
+107A:  BTFSC  03.0
+107B:  INCF   53,F
+107C:  MOVLW  01
+107D:  SUBWF  52,F
+107E:  MOVLW  00
+107F:  BTFSS  03.0
+1080:  MOVLW  01
+1081:  SUBWF  53,F
+1082:  MOVF   52,W
+1083:  BSF    03.5
+1084:  MOVWF  21
+1085:  BCF    0A.4
+1086:  BCF    03.5
+1087:  CALL   6F3
+1088:  BSF    0A.4
+....................      lcd_wrdata(0x01); 
+1089:  MOVLW  01
+108A:  BSF    03.5
+108B:  MOVWF  21
+108C:  BCF    0A.4
+108D:  BCF    03.5
+108E:  CALL   6F3
+108F:  BSF    0A.4
+....................       
+....................      lcd_wrcmd(SD_PSET); 
+1090:  MOVLW  75
+1091:  BSF    03.5
+1092:  MOVWF  20
+1093:  BCF    0A.4
+1094:  BCF    03.5
+1095:  CALL   6DD
+1096:  BSF    0A.4
+....................      lcd_wrdata(y); 
+1097:  MOVF   48,W
+1098:  BSF    03.5
+1099:  MOVWF  21
+109A:  BCF    0A.4
+109B:  BCF    03.5
+109C:  CALL   6F3
+109D:  BSF    0A.4
+....................      lcd_wrdata(y+height-1); 
+109E:  MOVF   48,W
+109F:  ADDWF  4B,W
+10A0:  MOVWF  52
+10A1:  MOVF   4C,W
+10A2:  MOVWF  53
+10A3:  BTFSC  03.0
+10A4:  INCF   53,F
+10A5:  MOVLW  01
+10A6:  SUBWF  52,F
+10A7:  MOVLW  00
+10A8:  BTFSS  03.0
+10A9:  MOVLW  01
+10AA:  SUBWF  53,F
+10AB:  MOVF   52,W
+10AC:  BSF    03.5
+10AD:  MOVWF  21
+10AE:  BCF    0A.4
+10AF:  BCF    03.5
+10B0:  CALL   6F3
+10B1:  BSF    0A.4
+....................   } 
+....................   lcd_wrcmd(RAMWR);   // Inicia a gravação de dados na RAM do display 
+10B2:  MOVLW  5C
+10B3:  BSF    03.5
+10B4:  MOVWF  20
+10B5:  BCF    0A.4
+10B6:  BCF    03.5
+10B7:  CALL   6DD
+10B8:  BSF    0A.4
+....................   for (i=0;i<(width*height);i++){ 
+10B9:  CLRF   51
+10BA:  CLRF   50
+10BB:  MOVF   4A,W
+10BC:  BSF    03.5
+10BD:  MOVWF  21
+10BE:  BCF    03.5
+10BF:  MOVF   49,W
+10C0:  BSF    03.5
+10C1:  MOVWF  20
+10C2:  BCF    03.5
+10C3:  MOVF   4C,W
+10C4:  BSF    03.5
+10C5:  MOVWF  23
+10C6:  BCF    03.5
+10C7:  MOVF   4B,W
+10C8:  BSF    03.5
+10C9:  MOVWF  22
+10CA:  BCF    0A.4
+10CB:  BCF    03.5
+10CC:  CALL   759
+10CD:  BSF    0A.4
+10CE:  MOVF   79,W
+10CF:  MOVWF  7A
+10D0:  MOVF   51,W
+10D1:  SUBWF  7A,W
+10D2:  BTFSS  03.0
+10D3:  GOTO   0E9
+10D4:  BTFSS  03.2
+10D5:  GOTO   0DA
+10D6:  MOVF   78,W
+10D7:  SUBWF  50,W
+10D8:  BTFSC  03.0
+10D9:  GOTO   0E9
+....................    lcd_wrdat16(Color);  // com a cor especificada  
+10DA:  MOVF   4E,W
+10DB:  BSF    03.5
+10DC:  MOVWF  21
+10DD:  BCF    03.5
+10DE:  MOVF   4D,W
+10DF:  BSF    03.5
+10E0:  MOVWF  20
+10E1:  BCF    0A.4
+10E2:  BCF    03.5
+10E3:  CALL   6FD
+10E4:  BSF    0A.4
+....................   } 
+10E5:  INCF   50,F
+10E6:  BTFSC  03.2
+10E7:  INCF   51,F
+10E8:  GOTO   0BB
+....................   output_high(LCD_CS);  
+10E9:  BSF    03.5
+10EA:  BCF    05.5
+10EB:  BCF    03.5
+10EC:  BSF    05.5
+.................... } 
+10ED:  RETURN
+....................  
+.................... void Putpixel(int x, int y, int16 Color, int orientacao){ 
+....................   output_low(LCD_CS);  
+10EE:  BSF    03.5
+10EF:  BCF    05.5
+10F0:  BCF    03.5
+10F1:  BCF    05.5
+....................    
+....................   if (orientacao == PAISAGEM){    
+10F2:  DECFSZ 4B,W
+10F3:  GOTO   131
+....................      lcd_wrcmd(SD_CSET); 
+10F4:  MOVLW  15
+10F5:  BSF    03.5
+10F6:  MOVWF  20
+10F7:  BCF    0A.4
+10F8:  BCF    03.5
+10F9:  CALL   6DD
+10FA:  BSF    0A.4
+....................      lcd_wrdata(0x08+132-y);  // O Inicio é 8 e não 0  
+10FB:  MOVF   48,W
+10FC:  SUBLW  8C
+10FD:  MOVWF  4C
+10FE:  BSF    03.5
+10FF:  MOVWF  21
+1100:  BCF    0A.4
+1101:  BCF    03.5
+1102:  CALL   6F3
+1103:  BSF    0A.4
+....................      lcd_wrdata(0x01); 
+1104:  MOVLW  01
+1105:  BSF    03.5
+1106:  MOVWF  21
+1107:  BCF    0A.4
+1108:  BCF    03.5
+1109:  CALL   6F3
+110A:  BSF    0A.4
+....................      lcd_wrdata(0x08+132-y);  // o final é 00x8B = 0x83+8 
+110B:  MOVF   48,W
+110C:  SUBLW  8C
+110D:  MOVWF  4C
+110E:  BSF    03.5
+110F:  MOVWF  21
+1110:  BCF    0A.4
+1111:  BCF    03.5
+1112:  CALL   6F3
+1113:  BSF    0A.4
+....................      lcd_wrdata(0x01); 
+1114:  MOVLW  01
+1115:  BSF    03.5
+1116:  MOVWF  21
+1117:  BCF    0A.4
+1118:  BCF    03.5
+1119:  CALL   6F3
+111A:  BSF    0A.4
+....................       
+....................      lcd_wrcmd(SD_PSET); 
+111B:  MOVLW  75
+111C:  BSF    03.5
+111D:  MOVWF  20
+111E:  BCF    0A.4
+111F:  BCF    03.5
+1120:  CALL   6DD
+1121:  BSF    0A.4
+....................      lcd_wrdata(x); 
+1122:  MOVF   47,W
+1123:  BSF    03.5
+1124:  MOVWF  21
+1125:  BCF    0A.4
+1126:  BCF    03.5
+1127:  CALL   6F3
+1128:  BSF    0A.4
+....................      lcd_wrdata(x); 
+1129:  MOVF   47,W
+112A:  BSF    03.5
+112B:  MOVWF  21
+112C:  BCF    0A.4
+112D:  BCF    03.5
+112E:  CALL   6F3
+112F:  BSF    0A.4
+....................   } 
+....................   else if (orientacao == RETRATO){   
+1130:  GOTO   170
+1131:  MOVF   4B,F
+1132:  BTFSS  03.2
+1133:  GOTO   170
+....................      lcd_wrcmd(SD_CSET); 
+1134:  MOVLW  15
+1135:  BSF    03.5
+1136:  MOVWF  20
+1137:  BCF    0A.4
+1138:  BCF    03.5
+1139:  CALL   6DD
+113A:  BSF    0A.4
+....................      lcd_wrdata(0x08+x);  // O Inicio é 8 e não 0  
+113B:  MOVLW  08
+113C:  ADDWF  47,W
+113D:  MOVWF  4C
+113E:  BSF    03.5
+113F:  MOVWF  21
+1140:  BCF    0A.4
+1141:  BCF    03.5
+1142:  CALL   6F3
+1143:  BSF    0A.4
+....................      lcd_wrdata(0x01); 
+1144:  MOVLW  01
+1145:  BSF    03.5
+1146:  MOVWF  21
+1147:  BCF    0A.4
+1148:  BCF    03.5
+1149:  CALL   6F3
+114A:  BSF    0A.4
+....................      lcd_wrdata(0x08+x);  // o final é 00x8B = 0x83+8 
+114B:  MOVLW  08
+114C:  ADDWF  47,W
+114D:  MOVWF  4C
+114E:  BSF    03.5
+114F:  MOVWF  21
+1150:  BCF    0A.4
+1151:  BCF    03.5
+1152:  CALL   6F3
+1153:  BSF    0A.4
+....................      lcd_wrdata(0x01); 
+1154:  MOVLW  01
+1155:  BSF    03.5
+1156:  MOVWF  21
+1157:  BCF    0A.4
+1158:  BCF    03.5
+1159:  CALL   6F3
+115A:  BSF    0A.4
+....................       
+....................      lcd_wrcmd(SD_PSET); 
+115B:  MOVLW  75
+115C:  BSF    03.5
+115D:  MOVWF  20
+115E:  BCF    0A.4
+115F:  BCF    03.5
+1160:  CALL   6DD
+1161:  BSF    0A.4
+....................      lcd_wrdata(y); 
+1162:  MOVF   48,W
+1163:  BSF    03.5
+1164:  MOVWF  21
+1165:  BCF    0A.4
+1166:  BCF    03.5
+1167:  CALL   6F3
+1168:  BSF    0A.4
+....................      lcd_wrdata(y);   
+1169:  MOVF   48,W
+116A:  BSF    03.5
+116B:  MOVWF  21
+116C:  BCF    0A.4
+116D:  BCF    03.5
+116E:  CALL   6F3
+116F:  BSF    0A.4
+....................   } 
+....................   lcd_wrcmd(RAMWR);    // Inicia a gravação de dados na RAM do display 
+1170:  MOVLW  5C
+1171:  BSF    03.5
+1172:  MOVWF  20
+1173:  BCF    0A.4
+1174:  BCF    03.5
+1175:  CALL   6DD
+1176:  BSF    0A.4
+....................   lcd_wrdat16(Color);  // com a cor especificada  
+1177:  MOVF   4A,W
+1178:  BSF    03.5
+1179:  MOVWF  21
+117A:  BCF    03.5
+117B:  MOVF   49,W
+117C:  BSF    03.5
+117D:  MOVWF  20
+117E:  BCF    0A.4
+117F:  BCF    03.5
+1180:  CALL   6FD
+1181:  BSF    0A.4
+....................  
+....................   output_high(LCD_CS);  
+1182:  BSF    03.5
+1183:  BCF    05.5
+1184:  BCF    03.5
+1185:  BSF    05.5
+.................... } 
+1186:  RETURN
+....................  
+.................... void char8x12(int x, int y, char c, int16 BColor, int16 FColor){ 
+....................   int h,ch,p,mask; 
+....................   output_low(LCD_CS); 
+*
+1398:  BSF    03.5
+1399:  BCF    05.5
+139A:  BCF    03.5
+139B:  BCF    05.5
+....................  
+....................   lcd_wrcmd(SD_CSET); 
+139C:  MOVLW  15
+139D:  BSF    03.5
+139E:  MOVWF  20
+139F:  BCF    0A.4
+13A0:  BCF    03.5
+13A1:  CALL   6DD
+13A2:  BSF    0A.4
+....................   lcd_wrdata(0x08+x);    // start is 8, not 0 
+13A3:  MOVLW  08
+13A4:  ADDWF  54,W
+13A5:  MOVWF  5F
+13A6:  BSF    03.5
+13A7:  MOVWF  21
+13A8:  BCF    0A.4
+13A9:  BCF    03.5
+13AA:  CALL   6F3
+13AB:  BSF    0A.4
+....................   lcd_wrdata(0x01); 
+13AC:  MOVLW  01
+13AD:  BSF    03.5
+13AE:  MOVWF  21
+13AF:  BCF    0A.4
+13B0:  BCF    03.5
+13B1:  CALL   6F3
+13B2:  BSF    0A.4
+....................   lcd_wrdata(0x08+x+7);  // end is 00x8B = 0x83+8 
+13B3:  MOVLW  08
+13B4:  ADDWF  54,W
+13B5:  ADDLW  07
+13B6:  MOVWF  5F
+13B7:  BSF    03.5
+13B8:  MOVWF  21
+13B9:  BCF    0A.4
+13BA:  BCF    03.5
+13BB:  CALL   6F3
+13BC:  BSF    0A.4
+....................   lcd_wrdata(0x01); 
+13BD:  MOVLW  01
+13BE:  BSF    03.5
+13BF:  MOVWF  21
+13C0:  BCF    0A.4
+13C1:  BCF    03.5
+13C2:  CALL   6F3
+13C3:  BSF    0A.4
+....................    
+....................   lcd_wrcmd(SD_PSET); 
+13C4:  MOVLW  75
+13C5:  BSF    03.5
+13C6:  MOVWF  20
+13C7:  BCF    0A.4
+13C8:  BCF    03.5
+13C9:  CALL   6DD
+13CA:  BSF    0A.4
+....................   lcd_wrdata(y); 
+13CB:  MOVF   55,W
+13CC:  BSF    03.5
+13CD:  MOVWF  21
+13CE:  BCF    0A.4
+13CF:  BCF    03.5
+13D0:  CALL   6F3
+13D1:  BSF    0A.4
+....................   lcd_wrdata(y+12);   
+13D2:  MOVLW  0C
+13D3:  ADDWF  55,W
+13D4:  MOVWF  5F
+13D5:  BSF    03.5
+13D6:  MOVWF  21
+13D7:  BCF    0A.4
+13D8:  BCF    03.5
+13D9:  CALL   6F3
+13DA:  BSF    0A.4
+....................  
+....................   lcd_wrcmd(RAMWR); 
+13DB:  MOVLW  5C
+13DC:  BSF    03.5
+13DD:  MOVWF  20
+13DE:  BCF    0A.4
+13DF:  BCF    03.5
+13E0:  CALL   6DD
+13E1:  BSF    0A.4
+....................    
+....................   for (h=0; h<12; h++){         
+13E2:  CLRF   5B
+13E3:  MOVF   5B,W
+13E4:  SUBLW  0B
+13E5:  BTFSS  03.0
+13E6:  GOTO   430
+....................      ch=font8x12[c-32][h]; 
+13E7:  MOVLW  20
+13E8:  SUBWF  56,W
+13E9:  MOVWF  60
+13EA:  BSF    03.5
+13EB:  CLRF   21
+13EC:  BCF    03.5
+13ED:  MOVF   60,W
+13EE:  BSF    03.5
+13EF:  MOVWF  20
+13F0:  CLRF   23
+13F1:  MOVLW  0C
+13F2:  MOVWF  22
+13F3:  BCF    0A.4
+13F4:  BCF    03.5
+13F5:  CALL   759
+13F6:  BSF    0A.4
+13F7:  MOVF   79,W
+13F8:  MOVWF  60
+13F9:  MOVF   78,W
+13FA:  MOVWF  5F
+13FB:  MOVF   5B,W
+13FC:  ADDWF  78,W
+13FD:  MOVWF  78
+13FE:  MOVF   79,W
+13FF:  MOVWF  7A
+1400:  BTFSC  03.0
+1401:  INCF   7A,F
+1402:  MOVF   78,W
+1403:  BCF    0A.4
+1404:  CALL   033
+1405:  BSF    0A.4
+1406:  MOVWF  78
+1407:  MOVWF  5C
+....................      mask=0x80; 
+1408:  MOVLW  80
+1409:  MOVWF  5E
+....................      for (p=0; p<8; p++){  // write the pixels 
+140A:  CLRF   5D
+140B:  MOVF   5D,W
+140C:  SUBLW  07
+140D:  BTFSS  03.0
+140E:  GOTO   42E
+....................         if (ch&mask) 
+140F:  MOVF   5C,W
+1410:  ANDWF  5E,W
+1411:  BTFSC  03.2
+1412:  GOTO   41F
+....................            lcd_wrdat16(FColor);                 
+1413:  MOVF   5A,W
+1414:  BSF    03.5
+1415:  MOVWF  21
+1416:  BCF    03.5
+1417:  MOVF   59,W
+1418:  BSF    03.5
+1419:  MOVWF  20
+141A:  BCF    0A.4
+141B:  BCF    03.5
+141C:  CALL   6FD
+141D:  BSF    0A.4
+....................         else 
+141E:  GOTO   42A
+....................            lcd_wrdat16(BColor); 
+141F:  MOVF   58,W
+1420:  BSF    03.5
+1421:  MOVWF  21
+1422:  BCF    03.5
+1423:  MOVF   57,W
+1424:  BSF    03.5
+1425:  MOVWF  20
+1426:  BCF    0A.4
+1427:  BCF    03.5
+1428:  CALL   6FD
+1429:  BSF    0A.4
+....................         mask=mask/2; 
+142A:  BCF    03.0
+142B:  RRF    5E,F
+....................      }  
+142C:  INCF   5D,F
+142D:  GOTO   40B
+....................   } 
+142E:  INCF   5B,F
+142F:  GOTO   3E3
+....................   output_high(LCD_CS);   
+1430:  BSF    03.5
+1431:  BCF    05.5
+1432:  BCF    03.5
+1433:  BSF    05.5
+.................... } 
+....................  
+.................... void char8x12_90(int x, int y, char c, int16 BColor, int16 FColor){ 
+*
+1461:  CLRF   62
+1462:  CLRF   64
+1463:  CLRF   65
+....................   int h,ch,p,mask,pos, i, j, inc = 0, k, a=0, b=0; 
+....................   char new_char[16] = { 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 };   
+1464:  CLRF   66
+1465:  CLRF   67
+1466:  CLRF   68
+1467:  CLRF   69
+1468:  CLRF   6A
+1469:  CLRF   6B
+146A:  CLRF   6C
+146B:  CLRF   6D
+146C:  CLRF   6E
+146D:  CLRF   6F
+146E:  CLRF   70
+146F:  CLRF   71
+1470:  CLRF   72
+1471:  CLRF   73
+1472:  CLRF   74
+1473:  CLRF   75
+....................   output_low(LCD_CS); 
+1474:  BSF    03.5
+1475:  BCF    05.5
+1476:  BCF    03.5
+1477:  BCF    05.5
+....................   Byte bitTest = 0x80, bitset = 0x01; 
+1478:  MOVLW  80
+1479:  MOVWF  76
+147A:  MOVLW  01
+147B:  MOVWF  7C
+....................  
+....................   lcd_wrcmd(SD_CSET); 
+147C:  MOVLW  15
+147D:  BSF    03.5
+147E:  MOVWF  20
+147F:  BCF    0A.4
+1480:  BCF    03.5
+1481:  CALL   6DD
+1482:  BSF    0A.4
+....................   lcd_wrdata(0x08+132-y-12);    // start is 8, not 0 
+1483:  MOVF   55,W
+1484:  SUBLW  8C
+1485:  ADDLW  F4
+1486:  BSF    03.5
+1487:  MOVWF  20
+1488:  MOVWF  21
+1489:  BCF    0A.4
+148A:  BCF    03.5
+148B:  CALL   6F3
+148C:  BSF    0A.4
+....................   lcd_wrdata(0x01); 
+148D:  MOVLW  01
+148E:  BSF    03.5
+148F:  MOVWF  21
+1490:  BCF    0A.4
+1491:  BCF    03.5
+1492:  CALL   6F3
+1493:  BSF    0A.4
+....................   lcd_wrdata(0x08+132-y-1);  // end is 00x8B = 0x83+8 
+1494:  MOVF   55,W
+1495:  SUBLW  8C
+1496:  ADDLW  FF
+1497:  BSF    03.5
+1498:  MOVWF  20
+1499:  MOVWF  21
+149A:  BCF    0A.4
+149B:  BCF    03.5
+149C:  CALL   6F3
+149D:  BSF    0A.4
+....................   lcd_wrdata(0x01); 
+149E:  MOVLW  01
+149F:  BSF    03.5
+14A0:  MOVWF  21
+14A1:  BCF    0A.4
+14A2:  BCF    03.5
+14A3:  CALL   6F3
+14A4:  BSF    0A.4
+....................    
+....................   lcd_wrcmd(SD_PSET); 
+14A5:  MOVLW  75
+14A6:  BSF    03.5
+14A7:  MOVWF  20
+14A8:  BCF    0A.4
+14A9:  BCF    03.5
+14AA:  CALL   6DD
+14AB:  BSF    0A.4
+....................   lcd_wrdata(x); 
+14AC:  MOVF   54,W
+14AD:  BSF    03.5
+14AE:  MOVWF  21
+14AF:  BCF    0A.4
+14B0:  BCF    03.5
+14B1:  CALL   6F3
+14B2:  BSF    0A.4
+....................   lcd_wrdata(x+9);   
+14B3:  MOVLW  09
+14B4:  ADDWF  54,W
+14B5:  BSF    03.5
+14B6:  MOVWF  20
+14B7:  MOVWF  21
+14B8:  BCF    0A.4
+14B9:  BCF    03.5
+14BA:  CALL   6F3
+14BB:  BSF    0A.4
+....................    
+....................  /*  
+....................   lcd_wrcmd(SD_CSET); 
+....................   lcd_wrdata(0x08+132-y-8);    // start is 8, not 0 
+....................   lcd_wrdata(0x01); 
+....................   lcd_wrdata(0x08+132-y-1);  // end is 00x8B = 0x83+8 
+....................   lcd_wrdata(0x01); 
+....................    
+....................   lcd_wrcmd(SD_PSET); 
+....................   lcd_wrdata(x); 
+....................   lcd_wrdata(x+6);  */   
+....................  
+....................   // ----------------------- TESTE função inverte bits ------------- 
+....................    if ((c<0x20) || (c>0x7F)) return; 
+14BC:  MOVF   56,W
+14BD:  SUBLW  1F
+14BE:  BTFSC  03.0
+14BF:  GOTO   4C3
+14C0:  MOVF   56,W
+14C1:  SUBLW  7F
+14C2:  BTFSS  03.0
+14C3:  GOTO   55E
+....................    pos = c-0x20; 
+14C4:  MOVLW  20
+14C5:  SUBWF  56,W
+14C6:  MOVWF  5F
+....................    for(i=0;i<12;i++){ 
+14C7:  CLRF   60
+14C8:  MOVF   60,W
+14C9:  SUBLW  0B
+14CA:  BTFSS  03.0
+14CB:  GOTO   50E
+....................       for(j=0;j<8;j++){       
+14CC:  CLRF   61
+14CD:  MOVF   61,W
+14CE:  SUBLW  07
+14CF:  BTFSS  03.0
+14D0:  GOTO   500
+....................         if((font8x12[pos][i]&bitTest) != 0) 
+14D1:  BSF    03.5
+14D2:  CLRF   21
+14D3:  BCF    03.5
+14D4:  MOVF   5F,W
+14D5:  BSF    03.5
+14D6:  MOVWF  20
+14D7:  CLRF   23
+14D8:  MOVLW  0C
+14D9:  MOVWF  22
+14DA:  BCF    0A.4
+14DB:  BCF    03.5
+14DC:  CALL   759
+14DD:  BSF    0A.4
+14DE:  MOVF   79,W
+14DF:  BSF    03.5
+14E0:  MOVWF  21
+14E1:  MOVF   78,W
+14E2:  MOVWF  20
+14E3:  BCF    03.5
+14E4:  MOVF   60,W
+14E5:  BSF    03.5
+14E6:  ADDWF  20,W
+14E7:  MOVWF  78
+14E8:  MOVF   21,W
+14E9:  MOVWF  7A
+14EA:  BTFSC  03.0
+14EB:  INCF   7A,F
+14EC:  MOVF   78,W
+14ED:  BCF    0A.4
+14EE:  BCF    03.5
+14EF:  CALL   033
+14F0:  BSF    0A.4
+14F1:  ANDWF  76,W
+14F2:  BTFSC  03.2
+14F3:  GOTO   4FC
+....................             new_char[j+inc] |= bitset; 
+14F4:  MOVF   62,W
+14F5:  ADDWF  61,W
+14F6:  ADDLW  66
+14F7:  MOVWF  04
+14F8:  BCF    03.7
+14F9:  MOVF   00,W
+14FA:  IORWF  7C,W
+14FB:  MOVWF  00
+....................         bitTest>>=1; 
+14FC:  BCF    03.0
+14FD:  RRF    76,F
+....................       } 
+14FE:  INCF   61,F
+14FF:  GOTO   4CD
+....................       bitTest = 0x80; 
+1500:  MOVLW  80
+1501:  MOVWF  76
+....................       bitset<<=1; 
+1502:  BCF    03.0
+1503:  RLF    7C,F
+....................       if(i==7){ 
+1504:  MOVF   60,W
+1505:  SUBLW  07
+1506:  BTFSS  03.2
+1507:  GOTO   50C
+....................          bitset = 0x10; // Bug Consertei << 4 bits 
+1508:  MOVLW  10
+1509:  MOVWF  7C
+....................          inc=8; 
+150A:  MOVLW  08
+150B:  MOVWF  62
+....................       } 
+....................    } 
+150C:  INCF   60,F
+150D:  GOTO   4C8
+....................   // --------------------------------------------------------------- 
+....................   lcd_wrcmd(RAMWR); 
+150E:  MOVLW  5C
+150F:  BSF    03.5
+1510:  MOVWF  20
+1511:  BCF    0A.4
+1512:  BCF    03.5
+1513:  CALL   6DD
+1514:  BSF    0A.4
+....................  // new_char[8] = 0x1f; 
+....................   for (h=0; h<16; h++){ 
+1515:  CLRF   5B
+1516:  MOVF   5B,W
+1517:  SUBLW  0F
+1518:  BTFSS  03.0
+1519:  GOTO   55A
+....................      if((h%2)!=0){   
+151A:  MOVF   5B,W
+151B:  ANDLW  01
+151C:  BTFSC  03.2
+151D:  GOTO   528
+....................         ch=new_char[a]; 
+151E:  MOVLW  66
+151F:  ADDWF  64,W
+1520:  MOVWF  04
+1521:  BCF    03.7
+1522:  MOVF   00,W
+1523:  MOVWF  5C
+....................         k=8; 
+1524:  MOVLW  08
+1525:  MOVWF  63
+....................         a++; 
+1526:  INCF   64,F
+....................      } 
+....................      else{ 
+1527:  GOTO   532
+....................         ch=new_char[b+8];      
+1528:  MOVLW  08
+1529:  ADDWF  65,W
+152A:  ADDLW  66
+152B:  MOVWF  04
+152C:  BCF    03.7
+152D:  MOVF   00,W
+152E:  MOVWF  5C
+....................         k=4; 
+152F:  MOVLW  04
+1530:  MOVWF  63
+....................         b++; 
+1531:  INCF   65,F
+....................      } 
+....................      //ch=0xc0; 
+....................      mask=0x80; 
+1532:  MOVLW  80
+1533:  MOVWF  5E
+....................      for (p=0; p<k; p++){  // write the pixels 
+1534:  CLRF   5D
+1535:  MOVF   63,W
+1536:  SUBWF  5D,W
+1537:  BTFSC  03.0
+1538:  GOTO   558
+....................         if (ch&mask) 
+1539:  MOVF   5C,W
+153A:  ANDWF  5E,W
+153B:  BTFSC  03.2
+153C:  GOTO   549
+....................            lcd_wrdat16(FColor);                 
+153D:  MOVF   5A,W
+153E:  BSF    03.5
+153F:  MOVWF  21
+1540:  BCF    03.5
+1541:  MOVF   59,W
+1542:  BSF    03.5
+1543:  MOVWF  20
+1544:  BCF    0A.4
+1545:  BCF    03.5
+1546:  CALL   6FD
+1547:  BSF    0A.4
+....................         else 
+1548:  GOTO   554
+....................            lcd_wrdat16(BColor); 
+1549:  MOVF   58,W
+154A:  BSF    03.5
+154B:  MOVWF  21
+154C:  BCF    03.5
+154D:  MOVF   57,W
+154E:  BSF    03.5
+154F:  MOVWF  20
+1550:  BCF    0A.4
+1551:  BCF    03.5
+1552:  CALL   6FD
+1553:  BSF    0A.4
+....................         mask=mask/2; 
+1554:  BCF    03.0
+1555:  RRF    5E,F
+....................      }  
+1556:  INCF   5D,F
+1557:  GOTO   535
+....................   } 
+1558:  INCF   5B,F
+1559:  GOTO   516
+....................   output_high(LCD_CS);   
+155A:  BSF    03.5
+155B:  BCF    05.5
+155C:  BCF    03.5
+155D:  BSF    05.5
+.................... } 
+....................  
+.................... void char5x8(int x, int y, char c, int16 BColor, int16 FColor){ 
+*
+118F:  MOVLW  01
+1190:  MOVWF  6A
+1191:  MOVLW  80
+1192:  MOVWF  6B
+....................   int h,ch,p,mask,pos, i, j; 
+....................   char new_char[8] = { 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 };   
+*
+1187:  CLRF   62
+1188:  CLRF   63
+1189:  CLRF   64
+118A:  CLRF   65
+118B:  CLRF   66
+118C:  CLRF   67
+118D:  CLRF   68
+118E:  CLRF   69
+....................   Byte bitTest = 0x01, bitset = 0x80;   
+....................   output_low(LCD_CS); 
+*
+1193:  BSF    03.5
+1194:  BCF    05.5
+1195:  BCF    03.5
+1196:  BCF    05.5
+....................  
+....................   lcd_wrcmd(SD_CSET); 
+1197:  MOVLW  15
+1198:  BSF    03.5
+1199:  MOVWF  20
+119A:  BCF    0A.4
+119B:  BCF    03.5
+119C:  CALL   6DD
+119D:  BSF    0A.4
+....................   lcd_wrdata(0x08+x);    // start is 8, not 0 
+119E:  MOVLW  08
+119F:  ADDWF  54,W
+11A0:  MOVWF  6C
+11A1:  BSF    03.5
+11A2:  MOVWF  21
+11A3:  BCF    0A.4
+11A4:  BCF    03.5
+11A5:  CALL   6F3
+11A6:  BSF    0A.4
+....................   lcd_wrdata(0x01); 
+11A7:  MOVLW  01
+11A8:  BSF    03.5
+11A9:  MOVWF  21
+11AA:  BCF    0A.4
+11AB:  BCF    03.5
+11AC:  CALL   6F3
+11AD:  BSF    0A.4
+....................   lcd_wrdata(0x08+x+6-1);  // end is 00x8B = 0x83+8 
+11AE:  MOVLW  08
+11AF:  ADDWF  54,W
+11B0:  ADDLW  06
+11B1:  ADDLW  FF
+11B2:  MOVWF  6C
+11B3:  BSF    03.5
+11B4:  MOVWF  21
+11B5:  BCF    0A.4
+11B6:  BCF    03.5
+11B7:  CALL   6F3
+11B8:  BSF    0A.4
+....................   lcd_wrdata(0x01); 
+11B9:  MOVLW  01
+11BA:  BSF    03.5
+11BB:  MOVWF  21
+11BC:  BCF    0A.4
+11BD:  BCF    03.5
+11BE:  CALL   6F3
+11BF:  BSF    0A.4
+....................    
+....................   lcd_wrcmd(SD_PSET); 
+11C0:  MOVLW  75
+11C1:  BSF    03.5
+11C2:  MOVWF  20
+11C3:  BCF    0A.4
+11C4:  BCF    03.5
+11C5:  CALL   6DD
+11C6:  BSF    0A.4
+....................   lcd_wrdata(y); 
+11C7:  MOVF   55,W
+11C8:  BSF    03.5
+11C9:  MOVWF  21
+11CA:  BCF    0A.4
+11CB:  BCF    03.5
+11CC:  CALL   6F3
+11CD:  BSF    0A.4
+....................   lcd_wrdata(y+8);   
+11CE:  MOVLW  08
+11CF:  ADDWF  55,W
+11D0:  MOVWF  6C
+11D1:  BSF    03.5
+11D2:  MOVWF  21
+11D3:  BCF    0A.4
+11D4:  BCF    03.5
+11D5:  CALL   6F3
+11D6:  BSF    0A.4
+....................  
+....................   lcd_wrcmd(RAMWR); 
+11D7:  MOVLW  5C
+11D8:  BSF    03.5
+11D9:  MOVWF  20
+11DA:  BCF    0A.4
+11DB:  BCF    03.5
+11DC:  CALL   6DD
+11DD:  BSF    0A.4
+....................   // ----------------------- TESTE função inverte bits ------------- 
+....................    if ((c<0x20) || (c>0x7F)) return; 
+11DE:  MOVF   56,W
+11DF:  SUBLW  1F
+11E0:  BTFSC  03.0
+11E1:  GOTO   1E5
+11E2:  MOVF   56,W
+11E3:  SUBLW  7F
+11E4:  BTFSS  03.0
+11E5:  GOTO   262
+....................    pos = c-0x20; 
+11E6:  MOVLW  20
+11E7:  SUBWF  56,W
+11E8:  MOVWF  5F
+....................    for(i=0;i<5;i++){ 
+11E9:  CLRF   60
+11EA:  MOVF   60,W
+11EB:  SUBLW  04
+11EC:  BTFSS  03.0
+11ED:  GOTO   22B
+....................       for(j=0;j<8;j++){       
+11EE:  CLRF   61
+11EF:  MOVF   61,W
+11F0:  SUBLW  07
+11F1:  BTFSS  03.0
+11F2:  GOTO   21F
+....................         if((font5x8[pos][i]&bitTest) != 0) 
+11F3:  BSF    03.5
+11F4:  CLRF   21
+11F5:  BCF    03.5
+11F6:  MOVF   5F,W
+11F7:  BSF    03.5
+11F8:  MOVWF  20
+11F9:  CLRF   23
+11FA:  MOVLW  05
+11FB:  MOVWF  22
+11FC:  BCF    0A.4
+11FD:  BCF    03.5
+11FE:  CALL   759
+11FF:  BSF    0A.4
+1200:  MOVF   79,W
+1201:  MOVWF  6D
+1202:  MOVF   78,W
+1203:  MOVWF  6C
+1204:  MOVF   60,W
+1205:  ADDWF  6C,W
+1206:  MOVWF  78
+1207:  MOVF   6D,W
+1208:  MOVWF  7A
+1209:  BTFSC  03.0
+120A:  INCF   7A,F
+120B:  MOVF   78,W
+120C:  BCF    0A.4
+120D:  BSF    0A.3
+120E:  CALL   409
+120F:  BSF    0A.4
+1210:  BCF    0A.3
+1211:  ANDWF  6A,W
+1212:  BTFSC  03.2
+1213:  GOTO   21B
+....................           new_char[j] |= bitset; 
+1214:  MOVLW  62
+1215:  ADDWF  61,W
+1216:  MOVWF  04
+1217:  BCF    03.7
+1218:  MOVF   00,W
+1219:  IORWF  6B,W
+121A:  MOVWF  00
+....................         bitTest<<=1; 
+121B:  BCF    03.0
+121C:  RLF    6A,F
+....................       } 
+121D:  INCF   61,F
+121E:  GOTO   1EF
+....................       bitTest = 0x01; 
+121F:  MOVLW  01
+1220:  MOVWF  6A
+....................       bitset>>=1; 
+1221:  BCF    03.0
+1222:  RRF    6B,F
+....................       if(i==4) 
+1223:  MOVF   60,W
+1224:  SUBLW  04
+1225:  BTFSS  03.2
+1226:  GOTO   229
+....................          bitset = 0x80;          
+1227:  MOVLW  80
+1228:  MOVWF  6B
+....................      
+....................    } 
+1229:  INCF   60,F
+122A:  GOTO   1EA
+....................   // --------------------------------------------------------------- 
+....................   for (h=0; h<8; h++){         
+122B:  CLRF   5B
+122C:  MOVF   5B,W
+122D:  SUBLW  07
+122E:  BTFSS  03.0
+122F:  GOTO   25E
+....................      ch=new_char[h]; 
+1230:  MOVLW  62
+1231:  ADDWF  5B,W
+1232:  MOVWF  04
+1233:  BCF    03.7
+1234:  MOVF   00,W
+1235:  MOVWF  5C
+....................      mask=0x80; 
+1236:  MOVLW  80
+1237:  MOVWF  5E
+....................      for (p=0; p<6; p++){  // write the pixels 
+1238:  CLRF   5D
+1239:  MOVF   5D,W
+123A:  SUBLW  05
+123B:  BTFSS  03.0
+123C:  GOTO   25C
+....................         if (ch&mask) 
+123D:  MOVF   5C,W
+123E:  ANDWF  5E,W
+123F:  BTFSC  03.2
+1240:  GOTO   24D
+....................            lcd_wrdat16(FColor);                 
+1241:  MOVF   5A,W
+1242:  BSF    03.5
+1243:  MOVWF  21
+1244:  BCF    03.5
+1245:  MOVF   59,W
+1246:  BSF    03.5
+1247:  MOVWF  20
+1248:  BCF    0A.4
+1249:  BCF    03.5
+124A:  CALL   6FD
+124B:  BSF    0A.4
+....................         else 
+124C:  GOTO   258
+....................            lcd_wrdat16(BColor); 
+124D:  MOVF   58,W
+124E:  BSF    03.5
+124F:  MOVWF  21
+1250:  BCF    03.5
+1251:  MOVF   57,W
+1252:  BSF    03.5
+1253:  MOVWF  20
+1254:  BCF    0A.4
+1255:  BCF    03.5
+1256:  CALL   6FD
+1257:  BSF    0A.4
+....................         mask=mask/2; 
+1258:  BCF    03.0
+1259:  RRF    5E,F
+....................      }  
+125A:  INCF   5D,F
+125B:  GOTO   239
+....................   } 
+125C:  INCF   5B,F
+125D:  GOTO   22C
+....................   output_high(LCD_CS);   
+125E:  BSF    03.5
+125F:  BCF    05.5
+1260:  BCF    03.5
+1261:  BSF    05.5
+.................... } 
+1262:  RETURN
+....................  
+.................... void char5x8_90(int x, int y, char c, int16 BColor, int16 FColor){ 
+....................   int h,ch,p,mask; 
+....................   output_low(LCD_CS); 
+*
+12C2:  BSF    03.5
+12C3:  BCF    05.5
+12C4:  BCF    03.5
+12C5:  BCF    05.5
+....................  
+....................   lcd_wrcmd(SD_CSET); 
+12C6:  MOVLW  15
+12C7:  BSF    03.5
+12C8:  MOVWF  20
+12C9:  BCF    0A.4
+12CA:  BCF    03.5
+12CB:  CALL   6DD
+12CC:  BSF    0A.4
+....................   lcd_wrdata(0x08+132-y-8);    // start is 8, not 0 
+12CD:  MOVF   55,W
+12CE:  SUBLW  8C
+12CF:  ADDLW  F8
+12D0:  MOVWF  5F
+12D1:  BSF    03.5
+12D2:  MOVWF  21
+12D3:  BCF    0A.4
+12D4:  BCF    03.5
+12D5:  CALL   6F3
+12D6:  BSF    0A.4
+....................   lcd_wrdata(0x01); 
+12D7:  MOVLW  01
+12D8:  BSF    03.5
+12D9:  MOVWF  21
+12DA:  BCF    0A.4
+12DB:  BCF    03.5
+12DC:  CALL   6F3
+12DD:  BSF    0A.4
+....................   lcd_wrdata(0x08+132-y-1);  // end is 00x8B = 0x83+8 
+12DE:  MOVF   55,W
+12DF:  SUBLW  8C
+12E0:  ADDLW  FF
+12E1:  MOVWF  5F
+12E2:  BSF    03.5
+12E3:  MOVWF  21
+12E4:  BCF    0A.4
+12E5:  BCF    03.5
+12E6:  CALL   6F3
+12E7:  BSF    0A.4
+....................   lcd_wrdata(0x01); 
+12E8:  MOVLW  01
+12E9:  BSF    03.5
+12EA:  MOVWF  21
+12EB:  BCF    0A.4
+12EC:  BCF    03.5
+12ED:  CALL   6F3
+12EE:  BSF    0A.4
+....................    
+....................   lcd_wrcmd(SD_PSET); 
+12EF:  MOVLW  75
+12F0:  BSF    03.5
+12F1:  MOVWF  20
+12F2:  BCF    0A.4
+12F3:  BCF    03.5
+12F4:  CALL   6DD
+12F5:  BSF    0A.4
+....................   lcd_wrdata(x); 
+12F6:  MOVF   54,W
+12F7:  BSF    03.5
+12F8:  MOVWF  21
+12F9:  BCF    0A.4
+12FA:  BCF    03.5
+12FB:  CALL   6F3
+12FC:  BSF    0A.4
+....................   lcd_wrdata(x+6);   
+12FD:  MOVLW  06
+12FE:  ADDWF  54,W
+12FF:  MOVWF  5F
+1300:  BSF    03.5
+1301:  MOVWF  21
+1302:  BCF    0A.4
+1303:  BCF    03.5
+1304:  CALL   6F3
+1305:  BSF    0A.4
+....................  
+....................   lcd_wrcmd(RAMWR); 
+1306:  MOVLW  5C
+1307:  BSF    03.5
+1308:  MOVWF  20
+1309:  BCF    0A.4
+130A:  BCF    03.5
+130B:  CALL   6DD
+130C:  BSF    0A.4
+....................  
+....................   for (h=0; h<6; h++){ 
+130D:  CLRF   5B
+130E:  MOVF   5B,W
+130F:  SUBLW  05
+1310:  BTFSS  03.0
+1311:  GOTO   363
+....................      if (h<5) 
+1312:  MOVF   5B,W
+1313:  SUBLW  04
+1314:  BTFSS  03.0
+1315:  GOTO   33A
+....................        ch=font5x8[c-32][h]; 
+1316:  MOVLW  20
+1317:  SUBWF  56,W
+1318:  MOVWF  60
+1319:  BSF    03.5
+131A:  CLRF   21
+131B:  BCF    03.5
+131C:  MOVF   60,W
+131D:  BSF    03.5
+131E:  MOVWF  20
+131F:  CLRF   23
+1320:  MOVLW  05
+1321:  MOVWF  22
+1322:  BCF    0A.4
+1323:  BCF    03.5
+1324:  CALL   759
+1325:  BSF    0A.4
+1326:  MOVF   79,W
+1327:  MOVWF  60
+1328:  MOVF   78,W
+1329:  MOVWF  5F
+132A:  MOVF   5B,W
+132B:  ADDWF  78,W
+132C:  MOVWF  78
+132D:  MOVF   79,W
+132E:  MOVWF  7A
+132F:  BTFSC  03.0
+1330:  INCF   7A,F
+1331:  MOVF   78,W
+1332:  BCF    0A.4
+1333:  BSF    0A.3
+1334:  CALL   409
+1335:  BSF    0A.4
+1336:  BCF    0A.3
+1337:  MOVWF  78
+1338:  MOVWF  5C
+....................      else 
+1339:  GOTO   33B
+....................        ch=0x00; 
+133A:  CLRF   5C
+....................      mask=0x80; 
+133B:  MOVLW  80
+133C:  MOVWF  5E
+....................      for (p=0; p<8; p++){  // write the pixels 
+133D:  CLRF   5D
+133E:  MOVF   5D,W
+133F:  SUBLW  07
+1340:  BTFSS  03.0
+1341:  GOTO   361
+....................         if (ch&mask) 
+1342:  MOVF   5C,W
+1343:  ANDWF  5E,W
+1344:  BTFSC  03.2
+1345:  GOTO   352
+....................            lcd_wrdat16(FColor);                 
+1346:  MOVF   5A,W
+1347:  BSF    03.5
+1348:  MOVWF  21
+1349:  BCF    03.5
+134A:  MOVF   59,W
+134B:  BSF    03.5
+134C:  MOVWF  20
+134D:  BCF    0A.4
+134E:  BCF    03.5
+134F:  CALL   6FD
+1350:  BSF    0A.4
+....................         else 
+1351:  GOTO   35D
+....................            lcd_wrdat16(BColor); 
+1352:  MOVF   58,W
+1353:  BSF    03.5
+1354:  MOVWF  21
+1355:  BCF    03.5
+1356:  MOVF   57,W
+1357:  BSF    03.5
+1358:  MOVWF  20
+1359:  BCF    0A.4
+135A:  BCF    03.5
+135B:  CALL   6FD
+135C:  BSF    0A.4
+....................         mask=mask/2; 
+135D:  BCF    03.0
+135E:  RRF    5E,F
+....................      }  
+135F:  INCF   5D,F
+1360:  GOTO   33E
+....................   } 
+1361:  INCF   5B,F
+1362:  GOTO   30E
+....................   output_high(LCD_CS);   
+1363:  BSF    03.5
+1364:  BCF    05.5
+1365:  BCF    03.5
+1366:  BSF    05.5
+.................... } 
+....................  
+.................... void char8x8_90(int x, int y, char c, int16 BColor, int16 FColor){ 
+....................   int h,ch,p,mask; 
+....................   output_low(LCD_CS); 
+*
+15BC:  BSF    03.5
+15BD:  BCF    05.5
+15BE:  BCF    03.5
+15BF:  BCF    05.5
+....................  
+....................   lcd_wrcmd(SD_CSET); 
+15C0:  MOVLW  15
+15C1:  BSF    03.5
+15C2:  MOVWF  20
+15C3:  BCF    0A.4
+15C4:  BCF    03.5
+15C5:  CALL   6DD
+15C6:  BSF    0A.4
+....................   lcd_wrdata(0x08+132-y-8);    // start is 8, not 0 
+15C7:  MOVF   55,W
+15C8:  SUBLW  8C
+15C9:  ADDLW  F8
+15CA:  MOVWF  5F
+15CB:  BSF    03.5
+15CC:  MOVWF  21
+15CD:  BCF    0A.4
+15CE:  BCF    03.5
+15CF:  CALL   6F3
+15D0:  BSF    0A.4
+....................   lcd_wrdata(0x01); 
+15D1:  MOVLW  01
+15D2:  BSF    03.5
+15D3:  MOVWF  21
+15D4:  BCF    0A.4
+15D5:  BCF    03.5
+15D6:  CALL   6F3
+15D7:  BSF    0A.4
+....................   lcd_wrdata(0x08+132-y-1);  // end is 00x8B = 0x83+8 
+15D8:  MOVF   55,W
+15D9:  SUBLW  8C
+15DA:  ADDLW  FF
+15DB:  MOVWF  5F
+15DC:  BSF    03.5
+15DD:  MOVWF  21
+15DE:  BCF    0A.4
+15DF:  BCF    03.5
+15E0:  CALL   6F3
+15E1:  BSF    0A.4
+....................   lcd_wrdata(0x01); 
+15E2:  MOVLW  01
+15E3:  BSF    03.5
+15E4:  MOVWF  21
+15E5:  BCF    0A.4
+15E6:  BCF    03.5
+15E7:  CALL   6F3
+15E8:  BSF    0A.4
+....................    
+....................   lcd_wrcmd(SD_PSET); 
+15E9:  MOVLW  75
+15EA:  BSF    03.5
+15EB:  MOVWF  20
+15EC:  BCF    0A.4
+15ED:  BCF    03.5
+15EE:  CALL   6DD
+15EF:  BSF    0A.4
+....................   lcd_wrdata(x); 
+15F0:  MOVF   54,W
+15F1:  BSF    03.5
+15F2:  MOVWF  21
+15F3:  BCF    0A.4
+15F4:  BCF    03.5
+15F5:  CALL   6F3
+15F6:  BSF    0A.4
+....................   lcd_wrdata(x+8);   
+15F7:  MOVLW  08
+15F8:  ADDWF  54,W
+15F9:  MOVWF  5F
+15FA:  BSF    03.5
+15FB:  MOVWF  21
+15FC:  BCF    0A.4
+15FD:  BCF    03.5
+15FE:  CALL   6F3
+15FF:  BSF    0A.4
+....................   /* 
+....................   lcd_wrdata(0x08+132-y-8);    // start is 8, not 0 
+....................   lcd_wrdata(0x01); 
+....................   lcd_wrdata(0x08+132-y-1);  // end is 00x8B = 0x83+8 
+....................   lcd_wrdata(0x01); 
+....................    
+....................   lcd_wrcmd(SD_PSET); 
+....................   lcd_wrdata(x); 
+....................   lcd_wrdata(x+6);    
+....................  */ 
+....................   
+....................   lcd_wrcmd(RAMWR); 
+1600:  MOVLW  5C
+1601:  BSF    03.5
+1602:  MOVWF  20
+1603:  BCF    0A.4
+1604:  BCF    03.5
+1605:  CALL   6DD
+1606:  BSF    0A.4
+....................    
+....................   for (h=0; h<8; h++){         
+1607:  CLRF   5B
+1608:  MOVF   5B,W
+1609:  SUBLW  07
+160A:  BTFSS  03.0
+160B:  GOTO   66D
+....................      ch=invByte(font8x8[c-32][7-h]); 
+160C:  MOVLW  20
+160D:  SUBWF  56,W
+160E:  CLRF   7A
+160F:  MOVWF  79
+1610:  RLF    79,W
+1611:  MOVWF  5F
+1612:  RLF    7A,W
+1613:  MOVWF  60
+1614:  RLF    5F,F
+1615:  RLF    60,F
+1616:  RLF    5F,F
+1617:  RLF    60,F
+1618:  MOVLW  F8
+1619:  ANDWF  5F,F
+161A:  MOVF   5B,W
+161B:  SUBLW  07
+161C:  ADDWF  5F,W
+161D:  MOVWF  78
+161E:  MOVF   60,W
+161F:  MOVWF  7A
+1620:  BTFSC  03.0
+1621:  INCF   7A,F
+1622:  MOVF   78,W
+1623:  BCF    0A.4
+1624:  BSF    0A.3
+1625:  CALL   000
+1626:  BSF    0A.4
+1627:  BCF    0A.3
+1628:  MOVWF  5F
+1629:  MOVF   5F,W
+162A:  MOVWF  60
+*
+1643:  MOVF   78,W
+1644:  MOVWF  5C
+....................      mask=0x80; 
+1645:  MOVLW  80
+1646:  MOVWF  5E
+....................      for (p=0; p<8; p++){  // write the pixels 
+1647:  CLRF   5D
+1648:  MOVF   5D,W
+1649:  SUBLW  07
+164A:  BTFSS  03.0
+164B:  GOTO   66B
+....................         if (ch&mask) 
+164C:  MOVF   5C,W
+164D:  ANDWF  5E,W
+164E:  BTFSC  03.2
+164F:  GOTO   65C
+....................            lcd_wrdat16(FColor);                 
+1650:  MOVF   5A,W
+1651:  BSF    03.5
+1652:  MOVWF  21
+1653:  BCF    03.5
+1654:  MOVF   59,W
+1655:  BSF    03.5
+1656:  MOVWF  20
+1657:  BCF    0A.4
+1658:  BCF    03.5
+1659:  CALL   6FD
+165A:  BSF    0A.4
+....................         else 
+165B:  GOTO   667
+....................            lcd_wrdat16(BColor); 
+165C:  MOVF   58,W
+165D:  BSF    03.5
+165E:  MOVWF  21
+165F:  BCF    03.5
+1660:  MOVF   57,W
+1661:  BSF    03.5
+1662:  MOVWF  20
+1663:  BCF    0A.4
+1664:  BCF    03.5
+1665:  CALL   6FD
+1666:  BSF    0A.4
+....................         mask=mask/2; 
+1667:  BCF    03.0
+1668:  RRF    5E,F
+....................      }  
+1669:  INCF   5D,F
+166A:  GOTO   648
+....................   } 
+166B:  INCF   5B,F
+166C:  GOTO   608
+....................   output_high(LCD_CS);   
+166D:  BSF    03.5
+166E:  BCF    05.5
+166F:  BCF    03.5
+1670:  BSF    05.5
+.................... } 
+....................  
+.................... char invByte(char bt){    // Essa função é necessária para inverter os bits da maneira correta ex: 1100 0000 = 0000 0011 
+*
+162B:  CLRF   61
+162C:  MOVLW  80
+162D:  MOVWF  62
+162E:  MOVLW  01
+162F:  MOVWF  63
+....................    char btInvert = 0x00; 
+....................    Byte bitTest = 0x80, bitset = 0x01; 
+....................    int i; 
+....................    for(i=0;i<8;i++){ 
+1630:  CLRF   64
+1631:  MOVF   64,W
+1632:  SUBLW  07
+1633:  BTFSS  03.0
+1634:  GOTO   641
+....................       if((bt&bitTest) != 0) 
+1635:  MOVF   60,W
+1636:  ANDWF  62,W
+1637:  BTFSC  03.2
+1638:  GOTO   63B
+....................          btInvert |= bitset;  
+1639:  MOVF   63,W
+163A:  IORWF  61,F
+....................       bitTest>>=1; 
+163B:  BCF    03.0
+163C:  RRF    62,F
+....................       bitset<<=1; 
+163D:  BCF    03.0
+163E:  RLF    63,F
+....................    } 
+163F:  INCF   64,F
+1640:  GOTO   631
+....................    return btInvert;    
+1641:  MOVF   61,W
+1642:  MOVWF  78
+.................... } 
+....................  
+.................... void putstr(int x, int y, char* text, int16 BC, int16 FC, int fonte, int orientacao){ 
+*
+1263:  CLRF   51
+....................    int i = 0; 
+....................  
+....................    if (fonte == FONT58){ 
+1264:  MOVF   4F,F
+1265:  BTFSS  03.2
+1266:  GOTO   369
+....................       if (orientacao == RETRATO) 
+1267:  MOVF   50,F
+1268:  BTFSS  03.2
+1269:  GOTO   297
+....................          while (text[i]!=0){    
+126A:  MOVF   51,W
+126B:  ADDWF  49,W
+126C:  MOVWF  04
+126D:  BCF    03.7
+126E:  BTFSC  4A.0
+126F:  BSF    03.7
+1270:  MOVF   00,F
+1271:  BTFSC  03.2
+1272:  GOTO   296
+....................             //for(i=0;i<strlen(text);i++) 
+....................                char5x8(x+(i*6),y,text[i],BC, FC);             
+1273:  MOVF   51,W
+1274:  MOVWF  52
+1275:  MOVLW  06
+1276:  MOVWF  53
+1277:  BCF    0A.4
+1278:  CALL   7C3
+1279:  BSF    0A.4
+127A:  MOVF   78,W
+127B:  ADDWF  47,W
+127C:  MOVWF  52
+127D:  MOVF   51,W
+127E:  ADDWF  49,W
+127F:  MOVWF  04
+1280:  BCF    03.7
+1281:  BTFSC  4A.0
+1282:  BSF    03.7
+1283:  MOVF   00,W
+1284:  MOVWF  53
+1285:  MOVF   52,W
+1286:  MOVWF  54
+1287:  MOVF   48,W
+1288:  MOVWF  55
+1289:  MOVF   53,W
+128A:  MOVWF  56
+128B:  MOVF   4C,W
+128C:  MOVWF  58
+128D:  MOVF   4B,W
+128E:  MOVWF  57
+128F:  MOVF   4E,W
+1290:  MOVWF  5A
+1291:  MOVF   4D,W
+1292:  MOVWF  59
+1293:  CALL   187
+....................                i++;                
+1294:  INCF   51,F
+....................          }             
+1295:  GOTO   26A
+....................       else if (orientacao == PAISAGEM) 
+1296:  GOTO   369
+1297:  DECFSZ 50,W
+1298:  GOTO   369
+....................          while (text[i]!=0){   
+1299:  MOVF   51,W
+129A:  ADDWF  49,W
+129B:  MOVWF  04
+129C:  BCF    03.7
+129D:  BTFSC  4A.0
+129E:  BSF    03.7
+129F:  MOVF   00,F
+12A0:  BTFSC  03.2
+12A1:  GOTO   369
+....................             char5x8_90(x+(i*6),y,text[i],BC, FC); 
+12A2:  MOVF   51,W
+12A3:  MOVWF  52
+12A4:  MOVLW  06
+12A5:  MOVWF  53
+12A6:  BCF    0A.4
+12A7:  CALL   7C3
+12A8:  BSF    0A.4
+12A9:  MOVF   78,W
+12AA:  ADDWF  47,W
+12AB:  MOVWF  52
+12AC:  MOVF   51,W
+12AD:  ADDWF  49,W
+12AE:  MOVWF  04
+12AF:  BCF    03.7
+12B0:  BTFSC  4A.0
+12B1:  BSF    03.7
+12B2:  MOVF   00,W
+12B3:  MOVWF  53
+12B4:  MOVF   52,W
+12B5:  MOVWF  54
+12B6:  MOVF   48,W
+12B7:  MOVWF  55
+12B8:  MOVF   53,W
+12B9:  MOVWF  56
+12BA:  MOVF   4C,W
+12BB:  MOVWF  58
+12BC:  MOVF   4B,W
+12BD:  MOVWF  57
+12BE:  MOVF   4E,W
+12BF:  MOVWF  5A
+12C0:  MOVF   4D,W
+12C1:  MOVWF  59
+....................             i++; 
+*
+1367:  INCF   51,F
+....................          } 
+1368:  GOTO   299
+....................    } 
+....................    if (fonte == FONT812){ 
+1369:  MOVF   4F,W
+136A:  SUBLW  02
+136B:  BTFSS  03.2
+136C:  GOTO   560
+....................       if (orientacao == RETRATO) 
+136D:  MOVF   50,F
+136E:  BTFSS  03.2
+136F:  GOTO   437
+....................          while (text[i]!=0){   
+1370:  MOVF   51,W
+1371:  ADDWF  49,W
+1372:  MOVWF  04
+1373:  BCF    03.7
+1374:  BTFSC  4A.0
+1375:  BSF    03.7
+1376:  MOVF   00,F
+1377:  BTFSC  03.2
+1378:  GOTO   436
+....................             char8x12(x+(i*8),y,text[i],BC, FC); 
+1379:  RLF    51,W
+137A:  MOVWF  77
+137B:  RLF    77,F
+137C:  RLF    77,F
+137D:  MOVLW  F8
+137E:  ANDWF  77,F
+137F:  MOVF   77,W
+1380:  ADDWF  47,W
+1381:  MOVWF  52
+1382:  MOVF   51,W
+1383:  ADDWF  49,W
+1384:  MOVWF  04
+1385:  BCF    03.7
+1386:  BTFSC  4A.0
+1387:  BSF    03.7
+1388:  MOVF   00,W
+1389:  MOVWF  53
+138A:  MOVF   52,W
+138B:  MOVWF  54
+138C:  MOVF   48,W
+138D:  MOVWF  55
+138E:  MOVF   53,W
+138F:  MOVWF  56
+1390:  MOVF   4C,W
+1391:  MOVWF  58
+1392:  MOVF   4B,W
+1393:  MOVWF  57
+1394:  MOVF   4E,W
+1395:  MOVWF  5A
+1396:  MOVF   4D,W
+1397:  MOVWF  59
+....................             i++; 
+*
+1434:  INCF   51,F
+....................          } 
+1435:  GOTO   370
+....................       else if (orientacao == PAISAGEM) 
+1436:  GOTO   560
+1437:  DECFSZ 50,W
+1438:  GOTO   560
+....................          while (text[i]!=0){   
+1439:  MOVF   51,W
+143A:  ADDWF  49,W
+143B:  MOVWF  04
+143C:  BCF    03.7
+143D:  BTFSC  4A.0
+143E:  BSF    03.7
+143F:  MOVF   00,F
+1440:  BTFSC  03.2
+1441:  GOTO   560
+....................             char8x12_90(x+(i*8),y,text[i],BC, FC); 
+1442:  RLF    51,W
+1443:  MOVWF  77
+1444:  RLF    77,F
+1445:  RLF    77,F
+1446:  MOVLW  F8
+1447:  ANDWF  77,F
+1448:  MOVF   77,W
+1449:  ADDWF  47,W
+144A:  MOVWF  52
+144B:  MOVF   51,W
+144C:  ADDWF  49,W
+144D:  MOVWF  04
+144E:  BCF    03.7
+144F:  BTFSC  4A.0
+1450:  BSF    03.7
+1451:  MOVF   00,W
+1452:  MOVWF  53
+1453:  MOVF   52,W
+1454:  MOVWF  54
+1455:  MOVF   48,W
+1456:  MOVWF  55
+1457:  MOVF   53,W
+1458:  MOVWF  56
+1459:  MOVF   4C,W
+145A:  MOVWF  58
+145B:  MOVF   4B,W
+145C:  MOVWF  57
+145D:  MOVF   4E,W
+145E:  MOVWF  5A
+145F:  MOVF   4D,W
+1460:  MOVWF  59
+....................             i++; 
+*
+155E:  INCF   51,F
+....................          } 
+155F:  GOTO   439
+....................    }   
+....................    if (fonte == FONT88){ 
+1560:  DECFSZ 4F,W
+1561:  GOTO   673
+....................       if (orientacao == RETRATO) 
+1562:  MOVF   50,F
+1563:  BTFSS  03.2
+1564:  GOTO   592
+....................          while (text[i]!=0){   
+1565:  MOVF   51,W
+1566:  ADDWF  49,W
+1567:  MOVWF  04
+1568:  BCF    03.7
+1569:  BTFSC  4A.0
+156A:  BSF    03.7
+156B:  MOVF   00,F
+156C:  BTFSC  03.2
+156D:  GOTO   591
+....................             //char8x8(x+(i*8),y,text[i],BC, FC); 
+....................                char5x8(x+(i*6),y,text[i],BC, FC);             
+156E:  MOVF   51,W
+156F:  MOVWF  52
+1570:  MOVLW  06
+1571:  MOVWF  53
+1572:  BCF    0A.4
+1573:  CALL   7C3
+1574:  BSF    0A.4
+1575:  MOVF   78,W
+1576:  ADDWF  47,W
+1577:  MOVWF  52
+1578:  MOVF   51,W
+1579:  ADDWF  49,W
+157A:  MOVWF  04
+157B:  BCF    03.7
+157C:  BTFSC  4A.0
+157D:  BSF    03.7
+157E:  MOVF   00,W
+157F:  MOVWF  53
+1580:  MOVF   52,W
+1581:  MOVWF  54
+1582:  MOVF   48,W
+1583:  MOVWF  55
+1584:  MOVF   53,W
+1585:  MOVWF  56
+1586:  MOVF   4C,W
+1587:  MOVWF  58
+1588:  MOVF   4B,W
+1589:  MOVWF  57
+158A:  MOVF   4E,W
+158B:  MOVWF  5A
+158C:  MOVF   4D,W
+158D:  MOVWF  59
+158E:  CALL   187
+....................             i++; 
+158F:  INCF   51,F
+....................          } 
+1590:  GOTO   565
+....................       else if (orientacao == PAISAGEM) 
+1591:  GOTO   673
+1592:  DECFSZ 50,W
+1593:  GOTO   673
+....................          while (text[i]!=0){   
+1594:  MOVF   51,W
+1595:  ADDWF  49,W
+1596:  MOVWF  04
+1597:  BCF    03.7
+1598:  BTFSC  4A.0
+1599:  BSF    03.7
+159A:  MOVF   00,F
+159B:  BTFSC  03.2
+159C:  GOTO   673
+....................             char8x8_90(x+(i*8),y,text[i],BC, FC); 
+159D:  RLF    51,W
+159E:  MOVWF  77
+159F:  RLF    77,F
+15A0:  RLF    77,F
+15A1:  MOVLW  F8
+15A2:  ANDWF  77,F
+15A3:  MOVF   77,W
+15A4:  ADDWF  47,W
+15A5:  MOVWF  52
+15A6:  MOVF   51,W
+15A7:  ADDWF  49,W
+15A8:  MOVWF  04
+15A9:  BCF    03.7
+15AA:  BTFSC  4A.0
+15AB:  BSF    03.7
+15AC:  MOVF   00,W
+15AD:  MOVWF  53
+15AE:  MOVF   52,W
+15AF:  MOVWF  54
+15B0:  MOVF   48,W
+15B1:  MOVWF  55
+15B2:  MOVF   53,W
+15B3:  MOVWF  56
+15B4:  MOVF   4C,W
+15B5:  MOVWF  58
+15B6:  MOVF   4B,W
+15B7:  MOVWF  57
+15B8:  MOVF   4E,W
+15B9:  MOVWF  5A
+15BA:  MOVF   4D,W
+15BB:  MOVWF  59
+....................             i++; 
+*
+1671:  INCF   51,F
+....................          } 
+1672:  GOTO   594
+....................    }    
+.................... } 
+1673:  RETURN
+....................  
+.................... void lcd_init(void){ 
+....................   int i; 
+....................   BYTE const disctl[9] = {0x4C, 0x01, 0x53, 0x00, 0x02, 0xB4, 0xB0, 0x02, 0x00}; 
+....................   BYTE const gcp64_0[29] = 
+....................                       {0x11,0x27,0x3C,0x4C,0x5D,0x6C,0x78,0x84,0x90,0x99,0xA2,0xAA,0xB2,0xBA, 
+....................                        0xC0,0xC7,0xCC,0xD2,0xD7,0xDC,0xE0,0xE4,0xE8,0xED,0xF0,0xF4,0xF7,0xFB, 
+....................                        0xFE}; 
+....................   BYTE const gcp64_1[34] = 
+....................                      {0x01,0x03,0x06,0x09,0x0B,0x0E,0x10,0x13,0x15,0x17,0x19,0x1C,0x1E,0x20, 
+....................                       0x22,0x24,0x26,0x28,0x2A,0x2C,0x2D,0x2F,0x31,0x33,0x35,0x37,0x39,0x3B, 
+....................                       0x3D,0x3F,0x42,0x44,0x47,0x5E}; 
+....................   BYTE const gcp16[15] = 
+....................                       {0x13,0x23,0x2D,0x33,0x38,0x3C,0x40,0x43,0x46,0x48,0x4A,0x4C,0x4E,0x50,0x64}; 
+....................  
+....................   port_init(); 
+....................   // generate clean display reset 
+....................   output_low(LCD_RESET);   // CS is high during reset release  
+*
+0EAE:  BCF    2E.1
+0EAF:  MOVF   2E,W
+0EB0:  BSF    03.5
+0EB1:  MOVWF  07
+0EB2:  BCF    03.5
+0EB3:  BCF    07.1
+....................   output_high(LCD_CS);   
+0EB4:  BSF    03.5
+0EB5:  BCF    05.5
+0EB6:  BCF    03.5
+0EB7:  BSF    05.5
+....................   output_high(LCD_RS);  // RS is set to high 
+0EB8:  BCF    2E.0
+0EB9:  MOVF   2E,W
+0EBA:  BSF    03.5
+0EBB:  MOVWF  07
+0EBC:  BCF    03.5
+0EBD:  BSF    07.0
+....................   delay_ms(10); 
+0EBE:  MOVLW  0A
+0EBF:  MOVWF  48
+0EC0:  BCF    0A.3
+0EC1:  CALL   6BD
+0EC2:  BSF    0A.3
+....................  
+....................   output_high(LCD_RESET);  // release reset 
+0EC3:  BCF    2E.1
+0EC4:  MOVF   2E,W
+0EC5:  BSF    03.5
+0EC6:  MOVWF  07
+0EC7:  BCF    03.5
+0EC8:  BSF    07.1
+....................   delay_ms(35); 
+0EC9:  MOVLW  23
+0ECA:  MOVWF  48
+0ECB:  BCF    0A.3
+0ECC:  CALL   6BD
+0ECD:  BSF    0A.3
+....................  
+....................   output_low(LCD_CS);  // select display 
+0ECE:  BSF    03.5
+0ECF:  BCF    05.5
+0ED0:  BCF    03.5
+0ED1:  BCF    05.5
+....................    
+....................   lcd_wrcmd(_DATCTL); 
+0ED2:  MOVLW  BC
+0ED3:  BSF    03.5
+0ED4:  MOVWF  20
+0ED5:  BCF    0A.3
+0ED6:  BCF    03.5
+0ED7:  CALL   6DD
+0ED8:  BSF    0A.3
+....................   lcd_wrdata(0x2A);  // 0x2A=565 mode, 0x0A=666mode, 0x3A=444mode 
+0ED9:  MOVLW  2A
+0EDA:  BSF    03.5
+0EDB:  MOVWF  21
+0EDC:  BCF    0A.3
+0EDD:  BCF    03.5
+0EDE:  CALL   6F3
+0EDF:  BSF    0A.3
+....................        
+....................   output_high(LCD_CS); 
+0EE0:  BSF    03.5
+0EE1:  BCF    05.5
+0EE2:  BCF    03.5
+0EE3:  BSF    05.5
+....................   //delay_us(1);  // Pulso no pino CS 
+....................   output_low(LCD_CS); 
+0EE4:  BSF    03.5
+0EE5:  BCF    05.5
+0EE6:  BCF    03.5
+0EE7:  BCF    05.5
+....................    
+....................   lcd_wrcmd(_DISCTL); 
+0EE8:  MOVLW  CA
+0EE9:  BSF    03.5
+0EEA:  MOVWF  20
+0EEB:  BCF    0A.3
+0EEC:  BCF    03.5
+0EED:  CALL   6DD
+0EEE:  BSF    0A.3
+....................   for (i=0; i<9; i++){ 
+0EEF:  CLRF   47
+0EF0:  MOVF   47,W
+0EF1:  SUBLW  08
+0EF2:  BTFSS  03.0
+0EF3:  GOTO   701
+....................     lcd_wrdata(disctl[i]); 
+0EF4:  MOVF   47,W
+0EF5:  BCF    0A.3
+0EF6:  CALL   63C
+0EF7:  BSF    0A.3
+0EF8:  MOVWF  48
+0EF9:  BSF    03.5
+0EFA:  MOVWF  21
+0EFB:  BCF    0A.3
+0EFC:  BCF    03.5
+0EFD:  CALL   6F3
+0EFE:  BSF    0A.3
+....................   } 
+0EFF:  INCF   47,F
+0F00:  GOTO   6F0
+....................    
+....................   lcd_wrcmd(_GCP64); 
+0F01:  MOVLW  CB
+0F02:  BSF    03.5
+0F03:  MOVWF  20
+0F04:  BCF    0A.3
+0F05:  BCF    03.5
+0F06:  CALL   6DD
+0F07:  BSF    0A.3
+....................   for (i=0; i<29; i++){ 
+0F08:  CLRF   47
+0F09:  MOVF   47,W
+0F0A:  SUBLW  1C
+0F0B:  BTFSS  03.0
+0F0C:  GOTO   720
+....................     lcd_wrdata(gcp64_0[i]); 
+0F0D:  MOVF   47,W
+0F0E:  BCF    0A.3
+0F0F:  CALL   649
+0F10:  BSF    0A.3
+0F11:  MOVWF  48
+0F12:  BSF    03.5
+0F13:  MOVWF  21
+0F14:  BCF    0A.3
+0F15:  BCF    03.5
+0F16:  CALL   6F3
+0F17:  BSF    0A.3
+....................     lcd_wrdata(0x00); 
+0F18:  BSF    03.5
+0F19:  CLRF   21
+0F1A:  BCF    0A.3
+0F1B:  BCF    03.5
+0F1C:  CALL   6F3
+0F1D:  BSF    0A.3
+....................   } 
+0F1E:  INCF   47,F
+0F1F:  GOTO   709
+....................   for (i=0; i<34; i++){ 
+0F20:  CLRF   47
+0F21:  MOVF   47,W
+0F22:  SUBLW  21
+0F23:  BTFSS  03.0
+0F24:  GOTO   739
+....................     lcd_wrdata(gcp64_1[i]); 
+0F25:  MOVF   47,W
+0F26:  BCF    0A.3
+0F27:  CALL   66A
+0F28:  BSF    0A.3
+0F29:  MOVWF  48
+0F2A:  BSF    03.5
+0F2B:  MOVWF  21
+0F2C:  BCF    0A.3
+0F2D:  BCF    03.5
+0F2E:  CALL   6F3
+0F2F:  BSF    0A.3
+....................     lcd_wrdata(0x01); 
+0F30:  MOVLW  01
+0F31:  BSF    03.5
+0F32:  MOVWF  21
+0F33:  BCF    0A.3
+0F34:  BCF    03.5
+0F35:  CALL   6F3
+0F36:  BSF    0A.3
+....................   } 
+0F37:  INCF   47,F
+0F38:  GOTO   721
+....................  
+....................   lcd_wrcmd(_GCP16); 
+0F39:  MOVLW  CC
+0F3A:  BSF    03.5
+0F3B:  MOVWF  20
+0F3C:  BCF    0A.3
+0F3D:  BCF    03.5
+0F3E:  CALL   6DD
+0F3F:  BSF    0A.3
+....................   for (i=0; i<15; i++){ 
+0F40:  CLRF   47
+0F41:  MOVF   47,W
+0F42:  SUBLW  0E
+0F43:  BTFSS  03.0
+0F44:  GOTO   752
+....................     lcd_wrdata(gcp16[i]); 
+0F45:  MOVF   47,W
+0F46:  BCF    0A.3
+0F47:  CALL   690
+0F48:  BSF    0A.3
+0F49:  MOVWF  48
+0F4A:  BSF    03.5
+0F4B:  MOVWF  21
+0F4C:  BCF    0A.3
+0F4D:  BCF    03.5
+0F4E:  CALL   6F3
+0F4F:  BSF    0A.3
+....................   } 
+0F50:  INCF   47,F
+0F51:  GOTO   741
+....................  
+....................   lcd_wrcmd(GSSET); 
+0F52:  MOVLW  CD
+0F53:  BSF    03.5
+0F54:  MOVWF  20
+0F55:  BCF    0A.3
+0F56:  BCF    03.5
+0F57:  CALL   6DD
+0F58:  BSF    0A.3
+....................   lcd_wrdata(0x00); 
+0F59:  BSF    03.5
+0F5A:  CLRF   21
+0F5B:  BCF    0A.3
+0F5C:  BCF    03.5
+0F5D:  CALL   6F3
+0F5E:  BSF    0A.3
+....................  
+....................   lcd_wrcmd(OSSEL); 
+0F5F:  MOVLW  D0
+0F60:  BSF    03.5
+0F61:  MOVWF  20
+0F62:  BCF    0A.3
+0F63:  BCF    03.5
+0F64:  CALL   6DD
+0F65:  BSF    0A.3
+....................   lcd_wrdata(0x00); 
+0F66:  BSF    03.5
+0F67:  CLRF   21
+0F68:  BCF    0A.3
+0F69:  BCF    03.5
+0F6A:  CALL   6F3
+0F6B:  BSF    0A.3
+....................  
+....................   lcd_wrcmd(SLPOUT); 
+0F6C:  MOVLW  94
+0F6D:  BSF    03.5
+0F6E:  MOVWF  20
+0F6F:  BCF    0A.3
+0F70:  BCF    03.5
+0F71:  CALL   6DD
+0F72:  BSF    0A.3
+....................    
+....................   //delay_ms(7); 
+....................  
+....................   lcd_wrcmd(SD_CSET); 
+0F73:  MOVLW  15
+0F74:  BSF    03.5
+0F75:  MOVWF  20
+0F76:  BCF    0A.3
+0F77:  BCF    03.5
+0F78:  CALL   6DD
+0F79:  BSF    0A.3
+....................   lcd_wrdata(0x08); 
+0F7A:  MOVLW  08
+0F7B:  BSF    03.5
+0F7C:  MOVWF  21
+0F7D:  BCF    0A.3
+0F7E:  BCF    03.5
+0F7F:  CALL   6F3
+0F80:  BSF    0A.3
+....................   lcd_wrdata(0x01); 
+0F81:  MOVLW  01
+0F82:  BSF    03.5
+0F83:  MOVWF  21
+0F84:  BCF    0A.3
+0F85:  BCF    03.5
+0F86:  CALL   6F3
+0F87:  BSF    0A.3
+....................   lcd_wrdata(0x8B); 
+0F88:  MOVLW  8B
+0F89:  BSF    03.5
+0F8A:  MOVWF  21
+0F8B:  BCF    0A.3
+0F8C:  BCF    03.5
+0F8D:  CALL   6F3
+0F8E:  BSF    0A.3
+....................   lcd_wrdata(0x01); 
+0F8F:  MOVLW  01
+0F90:  BSF    03.5
+0F91:  MOVWF  21
+0F92:  BCF    0A.3
+0F93:  BCF    03.5
+0F94:  CALL   6F3
+0F95:  BSF    0A.3
+....................  
+....................   lcd_wrcmd(SD_PSET); 
+0F96:  MOVLW  75
+0F97:  BSF    03.5
+0F98:  MOVWF  20
+0F99:  BCF    0A.3
+0F9A:  BCF    03.5
+0F9B:  CALL   6DD
+0F9C:  BSF    0A.3
+....................   lcd_wrdata(0x00); 
+0F9D:  BSF    03.5
+0F9E:  CLRF   21
+0F9F:  BCF    0A.3
+0FA0:  BCF    03.5
+0FA1:  CALL   6F3
+0FA2:  BSF    0A.3
+....................   lcd_wrdata(0x8F); 
+0FA3:  MOVLW  8F
+0FA4:  BSF    03.5
+0FA5:  MOVWF  21
+0FA6:  BCF    0A.3
+0FA7:  BCF    03.5
+0FA8:  CALL   6F3
+0FA9:  BSF    0A.3
+....................  
+....................   lcd_wrcmd(ASCSET); 
+0FAA:  MOVLW  AA
+0FAB:  BSF    03.5
+0FAC:  MOVWF  20
+0FAD:  BCF    0A.3
+0FAE:  BCF    03.5
+0FAF:  CALL   6DD
+0FB0:  BSF    0A.3
+....................   lcd_wrdata(0x00); 
+0FB1:  BSF    03.5
+0FB2:  CLRF   21
+0FB3:  BCF    0A.3
+0FB4:  BCF    03.5
+0FB5:  CALL   6F3
+0FB6:  BSF    0A.3
+....................   lcd_wrdata(0xAF); 
+0FB7:  MOVLW  AF
+0FB8:  BSF    03.5
+0FB9:  MOVWF  21
+0FBA:  BCF    0A.3
+0FBB:  BCF    03.5
+0FBC:  CALL   6F3
+0FBD:  BSF    0A.3
+....................   lcd_wrdata(0xAF); 
+0FBE:  MOVLW  AF
+0FBF:  BSF    03.5
+0FC0:  MOVWF  21
+0FC1:  BCF    0A.3
+0FC2:  BCF    03.5
+0FC3:  CALL   6F3
+0FC4:  BSF    0A.3
+....................   lcd_wrdata(0x03); 
+0FC5:  MOVLW  03
+0FC6:  BSF    03.5
+0FC7:  MOVWF  21
+0FC8:  BCF    0A.3
+0FC9:  BCF    03.5
+0FCA:  CALL   6F3
+0FCB:  BSF    0A.3
+....................    
+....................   lcd_wrcmd(SCSTART); 
+0FCC:  MOVLW  AB
+0FCD:  BSF    03.5
+0FCE:  MOVWF  20
+0FCF:  BCF    0A.3
+0FD0:  BCF    03.5
+0FD1:  CALL   6DD
+0FD2:  BSF    0A.3
+....................   lcd_wrdata(0x00); 
+0FD3:  BSF    03.5
+0FD4:  CLRF   21
+0FD5:  BCF    0A.3
+0FD6:  BCF    03.5
+0FD7:  CALL   6F3
+0FD8:  BSF    0A.3
+....................  
+....................   output_low(LCD_RS);     
+0FD9:  BCF    2E.0
+0FDA:  MOVF   2E,W
+0FDB:  BSF    03.5
+0FDC:  MOVWF  07
+0FDD:  BCF    03.5
+0FDE:  BCF    07.0
+....................   lcd_wrdata(DISON); 
+0FDF:  MOVLW  AF
+0FE0:  BSF    03.5
+0FE1:  MOVWF  21
+0FE2:  BCF    0A.3
+0FE3:  BCF    03.5
+0FE4:  CALL   6F3
+0FE5:  BSF    0A.3
+....................    
+....................   output_high(LCD_CS);    // deselect display 
+0FE6:  BSF    03.5
+0FE7:  BCF    05.5
+0FE8:  BCF    03.5
+0FE9:  BSF    05.5
+.................... } 
+0FEA:  BCF    0A.3
+0FEB:  BSF    0A.4
+0FEC:  GOTO   6B6 (RETURN)
+....................  
+....................  
+....................  
+.................... #define LED_STATUS   pin_a1 
+....................  
+.................... #define SPI_MODE_0  (SPI_L_TO_H | SPI_XMIT_L_TO_H) 
+.................... #define SPI_MODE_1  (SPI_L_TO_H) 
+.................... #define SPI_MODE_2  (SPI_H_TO_L) 
+.................... #define SPI_MODE_3  (SPI_H_TO_L | SPI_XMIT_L_TO_H) 
+....................  
+.................... int tempo; 
+....................  
+.................... #int_TIMER0 
+.................... void  TIMER0_isr(void){ 
+....................    tempo++; 
+*
+06A3:  INCF   2F,F
+....................    if(tempo == 70){   //  46 * 21,8ms =~ 1002,8ms ou 1,002 segundos  
+06A4:  MOVF   2F,W
+06A5:  SUBLW  46
+06A6:  BTFSS  03.2
+06A7:  GOTO   6AE
+....................       tempo=0; 
+06A8:  CLRF   2F
+....................       output_toggle(LED_STATUS); 
+06A9:  BSF    03.5
+06AA:  BCF    05.1
+06AB:  MOVLW  02
+06AC:  BCF    03.5
+06AD:  XORWF  05,F
+....................    } 
+.................... } 
+06AE:  BCF    0B.2
+06AF:  BCF    0A.3
+06B0:  BCF    0A.4
+06B1:  GOTO   01D
+.................... void main(void){ 
+*
+1674:  CLRF   04
+1675:  BCF    03.7
+1676:  MOVLW  1F
+1677:  ANDWF  03,F
+1678:  MOVLW  FF
+1679:  MOVWF  2D
+167A:  MOVWF  2C
+167B:  CLRF   2B
+167C:  CLRF   2A
+167D:  MOVWF  2E
+167E:  CLRF   31
+167F:  CLRF   30
+1680:  BSF    03.5
+1681:  BSF    1F.0
+1682:  BSF    1F.1
+1683:  BSF    1F.2
+1684:  BCF    1F.3
+....................   int i; 
+....................   char txt[20]; 
+....................   setup_spi(SPI_MASTER | SPI_MODE_0 | SPI_CLK_DIV_4);    
+*
+1688:  BCF    14.5
+1689:  BCF    2E.5
+168A:  MOVF   2E,W
+168B:  BSF    03.5
+168C:  MOVWF  07
+168D:  BCF    03.5
+168E:  BSF    2E.4
+168F:  MOVF   2E,W
+1690:  BSF    03.5
+1691:  MOVWF  07
+1692:  BCF    03.5
+1693:  BCF    2E.3
+1694:  MOVF   2E,W
+1695:  BSF    03.5
+1696:  MOVWF  07
+1697:  MOVLW  20
+1698:  BCF    03.5
+1699:  MOVWF  14
+169A:  MOVLW  40
+169B:  BSF    03.5
+169C:  MOVWF  14
+....................   //setup_spi(SPI_SS_DISABLED); 
+....................   setup_timer_0(RTCC_INTERNAL|RTCC_DIV_256|RTCC_8_bit);      //21.8 ms overflow 
+169D:  MOVF   01,W
+169E:  ANDLW  C0
+169F:  IORLW  07
+16A0:  MOVWF  01
+....................   setup_adc_ports(NO_ANALOGS); 
+16A1:  BSF    1F.0
+16A2:  BSF    1F.1
+16A3:  BSF    1F.2
+16A4:  BCF    1F.3
+....................   setup_adc(ADC_OFF); 
+16A5:  BCF    03.5
+16A6:  BCF    1F.0
+....................   enable_interrupts(INT_TIMER0); 
+16A7:  BSF    0B.5
+....................   enable_interrupts(GLOBAL);   
+16A8:  MOVLW  C0
+16A9:  IORWF  0B,F
+....................    
+....................   delay_ms(500); 
+16AA:  MOVLW  02
+16AB:  MOVWF  47
+16AC:  MOVLW  FA
+16AD:  MOVWF  48
+16AE:  BCF    0A.4
+16AF:  CALL   6BD
+16B0:  BSF    0A.4
+16B1:  DECFSZ 47,F
+16B2:  GOTO   6AC
+....................   lcd_init(); 
+16B3:  BCF    0A.4
+16B4:  BSF    0A.3
+16B5:  GOTO   692
+16B6:  BSF    0A.4
+16B7:  BCF    0A.3
+....................   fill_screen(BLACK); 
+16B8:  CLRF   48
+16B9:  CLRF   47
+16BA:  BCF    0A.4
+16BB:  CALL   70B
+16BC:  BSF    0A.4
+....................   delay_ms(500);   
+16BD:  MOVLW  02
+16BE:  MOVWF  47
+16BF:  MOVLW  FA
+16C0:  MOVWF  48
+16C1:  BCF    0A.4
+16C2:  CALL   6BD
+16C3:  BSF    0A.4
+16C4:  DECFSZ 47,F
+16C5:  GOTO   6BF
+....................   fill_screen(RED); 
+16C6:  MOVLW  F8
+16C7:  MOVWF  48
+16C8:  CLRF   47
+16C9:  BCF    0A.4
+16CA:  CALL   70B
+16CB:  BSF    0A.4
+....................   delay_ms(500); 
+16CC:  MOVLW  02
+16CD:  MOVWF  47
+16CE:  MOVLW  FA
+16CF:  MOVWF  48
+16D0:  BCF    0A.4
+16D1:  CALL   6BD
+16D2:  BSF    0A.4
+16D3:  DECFSZ 47,F
+16D4:  GOTO   6CE
+....................   fill_screen(GREEN); 
+16D5:  MOVLW  07
+16D6:  MOVWF  48
+16D7:  MOVLW  E0
+16D8:  MOVWF  47
+16D9:  BCF    0A.4
+16DA:  CALL   70B
+16DB:  BSF    0A.4
+....................   delay_ms(500); 
+16DC:  MOVLW  02
+16DD:  MOVWF  47
+16DE:  MOVLW  FA
+16DF:  MOVWF  48
+16E0:  BCF    0A.4
+16E1:  CALL   6BD
+16E2:  BSF    0A.4
+16E3:  DECFSZ 47,F
+16E4:  GOTO   6DE
+....................   fill_screen(BLUE); 
+16E5:  CLRF   48
+16E6:  MOVLW  1F
+16E7:  MOVWF  47
+16E8:  BCF    0A.4
+16E9:  CALL   70B
+16EA:  BSF    0A.4
+....................   delay_ms(500); 
+16EB:  MOVLW  02
+16EC:  MOVWF  47
+16ED:  MOVLW  FA
+16EE:  MOVWF  48
+16EF:  BCF    0A.4
+16F0:  CALL   6BD
+16F1:  BSF    0A.4
+16F2:  DECFSZ 47,F
+16F3:  GOTO   6ED
+....................   fill_screen(BLACK);   
+16F4:  CLRF   48
+16F5:  CLRF   47
+16F6:  BCF    0A.4
+16F7:  CALL   70B
+16F8:  BSF    0A.4
+....................   drawBox(90, 10, 20, 20, GREEN, RETRATO); 
+16F9:  MOVLW  5A
+16FA:  MOVWF  47
+16FB:  MOVLW  0A
+16FC:  MOVWF  48
+16FD:  CLRF   4A
+16FE:  MOVLW  14
+16FF:  MOVWF  49
+1700:  CLRF   4C
+1701:  MOVWF  4B
+1702:  MOVLW  07
+1703:  MOVWF  4E
+1704:  MOVLW  E0
+1705:  MOVWF  4D
+1706:  CLRF   4F
+1707:  CALL   000
+....................   drawBox(30, 40, 20, 20, BLUE, PAISAGEM);   
+1708:  MOVLW  1E
+1709:  MOVWF  47
+170A:  MOVLW  28
+170B:  MOVWF  48
+170C:  CLRF   4A
+170D:  MOVLW  14
+170E:  MOVWF  49
+170F:  CLRF   4C
+1710:  MOVWF  4B
+1711:  CLRF   4E
+1712:  MOVLW  1F
+1713:  MOVWF  4D
+1714:  MOVLW  01
+1715:  MOVWF  4F
+1716:  CALL   000
+....................   drawBox(50, 80, 50, 50, RED, PAISAGEM);     
+1717:  MOVLW  32
+1718:  MOVWF  47
+1719:  MOVLW  50
+171A:  MOVWF  48
+171B:  CLRF   4A
+171C:  MOVLW  32
+171D:  MOVWF  49
+171E:  CLRF   4C
+171F:  MOVWF  4B
+1720:  MOVLW  F8
+1721:  MOVWF  4E
+1722:  CLRF   4D
+1723:  MOVLW  01
+1724:  MOVWF  4F
+1725:  CALL   000
+....................   for(i=0;i<100;i++){ 
+1726:  CLRF   32
+1727:  MOVF   32,W
+1728:  SUBLW  63
+1729:  BTFSS  03.0
+172A:  GOTO   742
+....................       Putpixel(i, 10, YELLOW, RETRATO); 
+172B:  MOVF   32,W
+172C:  MOVWF  47
+172D:  MOVLW  0A
+172E:  MOVWF  48
+172F:  MOVLW  FF
+1730:  MOVWF  4A
+1731:  MOVLW  E0
+1732:  MOVWF  49
+1733:  CLRF   4B
+1734:  CALL   0EE
+....................       Putpixel(i, 10, YELLOW, PAISAGEM);       
+1735:  MOVF   32,W
+1736:  MOVWF  47
+1737:  MOVLW  0A
+1738:  MOVWF  48
+1739:  MOVLW  FF
+173A:  MOVWF  4A
+173B:  MOVLW  E0
+173C:  MOVWF  49
+173D:  MOVLW  01
+173E:  MOVWF  4B
+173F:  CALL   0EE
+....................   } 
+1740:  INCF   32,F
+1741:  GOTO   727
+....................   sprintf(txt,"Rbj.net\0"); 
+1742:  CLRF   31
+1743:  MOVLW  33
+1744:  MOVWF  30
+1745:  MOVLW  B2
+1746:  BSF    03.6
+1747:  MOVWF  0D
+1748:  MOVLW  06
+1749:  MOVWF  0F
+174A:  BCF    0A.4
+174B:  BCF    03.6
+174C:  CALL   77D
+174D:  BSF    0A.4
+....................   putstr(0, 4, txt, BLUE, WHITE, FONT812, RETRATO); 
+174E:  CLRF   47
+174F:  MOVLW  04
+1750:  MOVWF  48
+1751:  CLRF   4A
+1752:  MOVLW  33
+1753:  MOVWF  49
+1754:  CLRF   4C
+1755:  MOVLW  1F
+1756:  MOVWF  4B
+1757:  MOVLW  FF
+1758:  MOVWF  4E
+1759:  MOVWF  4D
+175A:  MOVLW  02
+175B:  MOVWF  4F
+175C:  CLRF   50
+175D:  CALL   263
+....................   putstr(0, 20, txt, RED, WHITE, FONT88, RETRATO); 
+175E:  CLRF   47
+175F:  MOVLW  14
+1760:  MOVWF  48
+1761:  CLRF   4A
+1762:  MOVLW  33
+1763:  MOVWF  49
+1764:  MOVLW  F8
+1765:  MOVWF  4C
+1766:  CLRF   4B
+1767:  MOVLW  FF
+1768:  MOVWF  4E
+1769:  MOVWF  4D
+176A:  MOVLW  01
+176B:  MOVWF  4F
+176C:  CLRF   50
+176D:  CALL   263
+....................   putstr(0, 30, txt, BLACK, WHITE, FONT58, RETRATO);   
+176E:  CLRF   47
+176F:  MOVLW  1E
+1770:  MOVWF  48
+1771:  CLRF   4A
+1772:  MOVLW  33
+1773:  MOVWF  49
+1774:  CLRF   4C
+1775:  CLRF   4B
+1776:  MOVLW  FF
+1777:  MOVWF  4E
+1778:  MOVWF  4D
+1779:  CLRF   4F
+177A:  CLRF   50
+177B:  CALL   263
+....................    
+....................   sprintf(txt,"Marlon S65\0"); 
+177C:  CLRF   31
+177D:  MOVLW  33
+177E:  MOVWF  30
+177F:  MOVLW  B7
+1780:  BSF    03.6
+1781:  MOVWF  0D
+1782:  MOVLW  06
+1783:  MOVWF  0F
+1784:  BCF    0A.4
+1785:  BCF    03.6
+1786:  CALL   77D
+1787:  BSF    0A.4
+....................   putstr(20, 20, txt, BLUE, WHITE, FONT812, PAISAGEM); 
+1788:  MOVLW  14
+1789:  MOVWF  47
+178A:  MOVWF  48
+178B:  CLRF   4A
+178C:  MOVLW  33
+178D:  MOVWF  49
+178E:  CLRF   4C
+178F:  MOVLW  1F
+1790:  MOVWF  4B
+1791:  MOVLW  FF
+1792:  MOVWF  4E
+1793:  MOVWF  4D
+1794:  MOVLW  02
+1795:  MOVWF  4F
+1796:  MOVLW  01
+1797:  MOVWF  50
+1798:  CALL   263
+....................   putstr(20, 40, txt, RED, WHITE, FONT88, PAISAGEM); 
+1799:  MOVLW  14
+179A:  MOVWF  47
+179B:  MOVLW  28
+179C:  MOVWF  48
+179D:  CLRF   4A
+179E:  MOVLW  33
+179F:  MOVWF  49
+17A0:  MOVLW  F8
+17A1:  MOVWF  4C
+17A2:  CLRF   4B
+17A3:  MOVLW  FF
+17A4:  MOVWF  4E
+17A5:  MOVWF  4D
+17A6:  MOVLW  01
+17A7:  MOVWF  4F
+17A8:  MOVWF  50
+17A9:  CALL   263
+....................   putstr(20, 60, txt, BLACK, WHITE, FONT58, PAISAGEM);   
+17AA:  MOVLW  14
+17AB:  MOVWF  47
+17AC:  MOVLW  3C
+17AD:  MOVWF  48
+17AE:  CLRF   4A
+17AF:  MOVLW  33
+17B0:  MOVWF  49
+17B1:  CLRF   4C
+17B2:  CLRF   4B
+17B3:  MOVLW  FF
+17B4:  MOVWF  4E
+17B5:  MOVWF  4D
+17B6:  CLRF   4F
+17B7:  MOVLW  01
+17B8:  MOVWF  50
+17B9:  CALL   263
+....................  
+....................   while(true){} 
+17BA:  GOTO   7BA
+.................... } 
+....................  
+17BB:  SLEEP
+
+Configuration Fuses:
+   Word  1: 3D3A   HS NOWDT NOPUT NOBROWNOUT NOLVP NOCPD NOWRT NODEBUG NOPROTECT

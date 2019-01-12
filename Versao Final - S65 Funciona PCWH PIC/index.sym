@@ -1,0 +1,263 @@
+004-005 @READ_PROGRAM_MEMORY8.P1
+004     @WRITE_PROGRAM_MEMORY8.P2
+015     CCP_1_LOW
+015     CCP_1
+016     CCP_1_HIGH
+01B     CCP_2_LOW
+01B     CCP_2
+01C     CCP_2_HIGH
+020     @INTERRUPT_AREA
+021     @INTERRUPT_AREA
+022     @INTERRUPT_AREA
+023     @INTERRUPT_AREA
+024     @INTERRUPT_AREA
+025     @INTERRUPT_AREA
+026     @INTERRUPT_AREA
+027     @INTERRUPT_AREA
+028-029 strtok.save
+02A-02B textcolor
+02C-02D backcolor
+02E     @TRIS_C
+02F     tempo
+030-031 @sprintf_string
+032     MAIN.i
+033-050 MAIN.txt
+051     Putpixel.x
+051     putstr.x
+051     drawBox.x
+051     lcd_init.i
+051-052 fill_screen.color
+051     MAIN.@SCRATCH1
+051     @PSTRINGC7_302.@SCRATCH1
+052     Putpixel.y
+052     @delay_ms1.P1
+052     drawBox.y
+052     putstr.y
+052     lcd_init.@SCRATCH1
+052     @PSTRINGC7_302.@SCRATCH2
+053-054 fill_screen.i
+053-054 drawBox.width
+053-054 Putpixel.color
+053-054 putstr.text
+053     @PSTRINGC7_302.@SCRATCH3
+054     @SPRINTF.P1
+055     Putpixel.orientacao
+055-056 drawBox.height
+055-056 putstr.BC
+056     Putpixel.@SCRATCH1
+057-058 putstr.FC
+057-058 drawBox.color
+059     drawBox.orientacao
+059     putstr.fonte
+05A-05B drawBox.i
+05A     putstr.orientacao
+05B     putstr.i
+05C     @MUL88.P1
+05C     drawBox.@SCRATCH1
+05C     putstr.@SCRATCH1
+05D     @MUL88.P1
+05D     drawBox.@SCRATCH2
+05D     putstr.@SCRATCH2
+05E     char5x8_90.x
+05E     char5x8.x
+05E     char8x12.x
+05E     char8x8_90.x
+05E     char8x12_90.x
+05F     char5x8_90.y
+05F     char8x12_90.y
+05F     char8x12.y
+05F     char5x8.y
+05F     char8x8_90.y
+060     char8x12.c
+060     char8x8_90.c
+060     char8x12_90.c
+060     char5x8.c
+060     char5x8_90.c
+061-062 char5x8.BColor
+061-062 char5x8_90.BColor
+061-062 char8x8_90.BColor
+061-062 char8x12_90.BColor
+061-062 char8x12.BColor
+063-064 char8x12_90.FColor
+063-064 char5x8_90.FColor
+063-064 char5x8.FColor
+063-064 char8x12.FColor
+063-064 char8x8_90.FColor
+065     char8x8_90.h
+065     char5x8.h
+065     char8x12.h
+065     char5x8_90.h
+065     char8x12_90.h
+066     char5x8.ch
+066     char8x12_90.ch
+066     char5x8_90.ch
+066     char8x8_90.ch
+066     char8x12.ch
+067     char5x8_90.p
+067     char5x8.p
+067     char8x12.p
+067     char8x12_90.p
+067     char8x8_90.p
+068     char8x8_90.mask
+068     char8x12.mask
+068     char5x8_90.mask
+068     char5x8.mask
+068     char8x12_90.mask
+069     char5x8.pos
+069     char8x12_90.pos
+069     char8x12.@SCRATCH1
+069     char5x8_90.@SCRATCH1
+069     char8x8_90.@SCRATCH1
+06A     invByte.bt
+06A     char8x12_90.i
+06A     char5x8.i
+06A     char8x12.@SCRATCH2
+06A     char5x8_90.@SCRATCH2
+06A     char8x8_90.@SCRATCH2
+06B     char8x12_90.j
+06B     char5x8.j
+06B     invByte.btInvert
+06B     char8x8_90.@SCRATCH3
+06C     char8x12_90.inc
+06C-073 char5x8.new_char
+06C     invByte.bitTest
+06D     char8x12_90.k
+06D     invByte.bitset
+06E     invByte.i
+06E     char8x12_90.a
+06F     char8x12_90.b
+06F     invByte.@SCRATCH1
+070     char8x12_90.bitTest
+071     char8x12_90.bitset
+072     char8x12_90.@SCRATCH1
+073     char8x12_90.@SCRATCH2
+074     char5x8.bitTest
+074     char8x12_90.@SCRATCH3
+075     char5x8.bitset
+077     @SCRATCH
+078     @SCRATCH
+078     _RETURN_
+079     @SCRATCH
+07A     @SCRATCH
+07B     @SCRATCH
+07C     char5x8.@SCRATCH1
+07D     char5x8.@SCRATCH2
+07E     char5x8.@SCRATCH3
+07F     @INTERRUPT_AREA
+0A0-0AF char8x12_90.new_char
+0B2-0B3 @MUL1616.P1
+0B2     lcd_wrcmd.output_data
+0B2-0B3 lcd_wrdat16.dat
+0B3     lcd_wrdata.output_data
+0B4-0B5 @MUL1616.P1
+0B4     lcd_wrdat16.@SCRATCH1
+0B5     lcd_wrdat16.@SCRATCH2
+0B6     lcd_write.dados
+0B6     @MUL1616.@SCRATCH1
+0FF     @INTERRUPT_AREA
+10D-10E @WRITE_PROGRAM_MEMORY8.P1
+10D-10E @READ_PROGRAM_MEMORY8.P2
+17F     @INTERRUPT_AREA
+1FF     @INTERRUPT_AREA
+27F     @INTERRUPT_AREA
+2FF     @INTERRUPT_AREA
+37F     @INTERRUPT_AREA
+3FF     @INTERRUPT_AREA
+47F     @INTERRUPT_AREA
+4FF     @INTERRUPT_AREA
+57F     @INTERRUPT_AREA
+5FF     @INTERRUPT_AREA
+67F     @INTERRUPT_AREA
+6FF     @INTERRUPT_AREA
+77F     @INTERRUPT_AREA
+7FF     @INTERRUPT_AREA
+87F     @INTERRUPT_AREA
+8FF     @INTERRUPT_AREA
+97F     @INTERRUPT_AREA
+9FF     @INTERRUPT_AREA
+A7F     @INTERRUPT_AREA
+AFF     @INTERRUPT_AREA
+B7F     @INTERRUPT_AREA
+BFF     @INTERRUPT_AREA
+C7F     @INTERRUPT_AREA
+CFF     @INTERRUPT_AREA
+D7F     @INTERRUPT_AREA
+DFF     @INTERRUPT_AREA
+E7F     @INTERRUPT_AREA
+EFF     @INTERRUPT_AREA
+F7F     @INTERRUPT_AREA
+FFF     @INTERRUPT_AREA
+
+ROM Allocation:
+06DD  @delay_ms1
+0033  font8x12
+0800  font8x8
+0C09  font5x8
+0E92  port_init
+06F2  lcd_write
+06FD  lcd_wrcmd
+0713  lcd_wrdata
+071D  lcd_wrdat16
+072B  fill_screen
+1000  drawBox
+0779  @MUL1616
+10EE  Putpixel
+13B9  char8x12
+1482  char8x12_90
+11AC  char5x8
+12E3  char5x8_90
+15D7  char8x8_90
+1646  invByte
+1288  putstr
+1187  @MUL88
+063C  disctl
+0649  gcp64_0
+066A  gcp64_1
+0690  gcp16
+0E92  lcd_init
+06A3  TIMER0_isr
+168F  MAIN
+06B2  @const300
+0790  @SPRINTF
+079D  @PSTRINGC7_302
+06B7  @const305
+06BD  @const306
+06CD  @const307
+1800  @cinit
+
+
+User Memory space: 
+
+User Memory space: 
+
+Project Directory:
+    D:\SkyDrive\Eletronica\PROJETOS PIC CCS\LCD SIEMENS S65 176X132\Funciona - Eu fiz S65 L2F50\
+
+Project Files:
+    index.c
+    C:\Program Files (x86)\PICC\devices\16F876.h
+    S65-L2F50.c
+    C:\Program Files (x86)\PICC\drivers\string.h
+    C:\Program Files (x86)\PICC\drivers\stddef.h
+    C:\Program Files (x86)\PICC\drivers\ctype.h
+    lcd.h
+
+Units:
+    D:\SkyDrive\Eletronica\PROJETOS PIC CCS\LCD SIEMENS S65 176X132\Funciona - Eu fiz S65 L2F50\index (main)
+
+Compiler Settings:
+    Processor:      PIC16F876
+    Pointer Size:   16
+    ADC Range:      0-255
+    Opt Level:      9
+    Short,Int,Long: UNSIGNED: 1,8,16
+    Float,Double:   32,32
+
+Output Files:
+    Errors:      index.err
+    Ext Symbols: index.esym
+    INHX8:       index.hex
+    Symbols:     index.sym
+    List:        index.lst
+    Debug/COFF:  index.cof
+    Project:     index.PJT

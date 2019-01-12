@@ -1,0 +1,58 @@
+[PROJECT]
+Target=simple.hex
+Development_Mode=
+Processor=0x876F
+Processor_Text=PIC16F876
+ToolSuite=CCS
+
+[Directories]
+Include=C:\Arquivos de programas\PICC\devices\;C:\Arquivos de programas\PICC\drivers\;
+Library=
+LinkerScript=
+
+[Target Data]
+FileList=F:\Eletronica\PIC PROJETOS\L2F50_display4\simple.c
+BuildTool=C-COMPILER
+OptionString=+FM
+AdditionalOptionString=
+BuildRequired=1
+
+[simple.c]
+Type=4
+Path=
+FileList=
+BuildTool=
+OptionString=
+AdditionalOptionString=
+
+[mru-list]
+1=simple.c
+
+[Windows]
+0=0000 %S 0 0 796 451 3 0
+
+[Opened Files]
+1=disp.c
+2=
+3=
+4=
+[defines]
+enabled=0
+D1=
+V1=
+[fileformats]
+forcecoff=0
+debug=4
+error=2
+object=0
+list=0
+scratch=0
+sta=1
+tre=1
+allerrors=1
+allwarnings=1
+stayupne=1
+stayupoe=0
+[Units]
+Count=1
+1=simple (main)

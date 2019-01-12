@@ -1,0 +1,97 @@
+004-005 @READ_PROGRAM_MEMORY8.P1
+004     @WRITE_PROGRAM_MEMORY8.P2
+015     CCP_1_LOW
+015     CCP_1
+016     CCP_1_HIGH
+020     @INTERRUPT_AREA
+021     @INTERRUPT_AREA
+022     @INTERRUPT_AREA
+023     @INTERRUPT_AREA
+024     @INTERRUPT_AREA
+025     @INTERRUPT_AREA
+026     @INTERRUPT_AREA
+027     @INTERRUPT_AREA
+028     char_row
+029     charsel
+02A     charpos
+02B     chardata
+02C-02D ddram
+02E-02F x
+030     @delay_ms1.P1
+030     nokia_gotoxy.xnokia
+030     @PSTRINGC7_83.@SCRATCH1
+031     nokia_gotoxy.ynokia
+031     @PSTRINGC7_83.@SCRATCH2
+032     nokia_gotoxy.@SCRATCH1
+032     @PSTRINGC7_83.@SCRATCH3
+033     nokia_printchar.cvar
+033     nokia_write_command.bytefornokia_command
+034     nokia_write_data.bytefornokia_data
+034     table_to_nokialcd.@SCRATCH1
+035     nokia_write_dorc.bytefornokia
+035     table_to_nokialcd.@SCRATCH2
+036     @MUL88.P1
+037     @MUL88.P1
+077     @SCRATCH
+078     @SCRATCH
+078     _RETURN_
+079     @SCRATCH
+07A     @SCRATCH
+10D-10E @READ_PROGRAM_MEMORY8.P1
+10D-10E @WRITE_PROGRAM_MEMORY8.P2
+
+ROM Allocation:
+0243  @delay_ms1
+002F  TABLE5
+0126  TABLE6
+027E  nokia_init
+029C  nokia_clean_ddram
+0261  nokia_write_command
+0276  nokia_write_data
+0258  nokia_write_dorc
+0269  nokia_gotoxy
+021D  @const102
+0318  @PSTRINGC7_83
+02DC  nokia_printchar
+02DE  table_to_nokialcd
+02B7  @MUL88
+0225  @const112
+0226  isr
+035E  MAIN
+023B  @const117
+035E  @cinit
+
+
+User Memory space: 
+
+User Memory space: 
+
+Project Directory:
+    F:\Eletronica\PIC PROJETOS\TESTE SPI 16F819\
+
+Project Files:
+    main.c
+    C:\Arquivos de programas\PICC\devices\16F819.h
+    driver3310.c
+
+Units:
+    F:\Eletronica\PIC PROJETOS\TESTE SPI 16F819\main (main)
+
+Compiler Settings:
+    Processor:      PIC16F819
+    Pointer Size:   16
+    ADC Range:      0-255
+    Opt Level:      9
+    Short,Int,Long: UNSIGNED: 1,8,16
+    Float,Double:   32,32
+
+Output Files:
+    Errors:      main.err
+    Ext Symbols: main.esym
+    INHX8:       main.hex
+    Symbols:     main.sym
+    List:        main.lst
+    Debug/COFF:  main.cof
+    Project:     main.PJT
+    Call Tree:   main.tre
+    Statistics:  main.sta

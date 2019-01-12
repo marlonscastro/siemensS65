@@ -1,0 +1,61 @@
+
+ROM used: 923 (45%)
+          923 (45%) including unused fragments
+
+          1 Average locations per line
+          7 Average locations per statement
+
+RAM used: 21 (8%) at main() level
+          29 (11%) worst case
+
+Stack used: 5 worst case (out of 8 total available)
+
+Lines Stmts  %   Files
+----- ----- ---  -----
+   39    19  14  main.c
+  264     0   0  C:\Arquivos de programas\PICC\devices\16F819.h
+  365   116  86  driver3310.c
+----- -----
+  668   135 Total
+
+Page ROM  %  RAM   Vol Diff  Functions:
+---- --- --- ---   --- ----  ----------
+0     21   2   1             @delay_ms1
+0    247  27   0   265  3.7  @const65
+0    247  27   0   265  3.7  @const67
+0     57   6   0   243  1.4  nokia_init
+ Inline        0   114  3.4  nokia_clean_ddram
+0      8   1   1    42  1.1  nokia_write_command
+0      8   1   1    42  1.1  nokia_write_data
+0      9   1   1    24  1.2  nokia_write_dorc
+0     13   1   3   106  2.8  nokia_gotoxy
+0      8   1   0   265  3.7  @const102
+0     70   8   3   265  3.7  @PSTRINGC7_83
+0     60   7   1    37  1.7  nokia_printchar
+ Inline        2   547  7.6  table_to_nokialcd
+0     37   4   2             @MUL88
+0      1   0   0             @const112
+0     21   2   0    76  2.7  isr
+0     61   7   0   357  2.7  MAIN
+0      8   1   0             @const117
+
+Program metrics:
+    Functions               14
+    Statements              135
+    Comments                235
+    Volume (V)              4524
+    Difficilty (D)          40.4
+    Effort to implement (E) 182801
+    Time to implement (T)   2 hours, 49 minutes
+    Est Delivered Bugs (B)  1
+    Cyclomatic Complexity   7
+    Maintainability (MI)    107
+
+ Segment     Used  Free
+-----------  ----  ----
+00000-00003     4  0  
+00004-0002E    43  0  
+0002F-007FF   876  1125  
+
+
+
